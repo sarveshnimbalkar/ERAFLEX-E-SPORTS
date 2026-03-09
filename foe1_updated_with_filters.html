@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERAFLEX | Elite Global Athletics</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Bebas+Neue&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Bebas Neue', 'sans-serif'],
+                        indian: ['Rajdhani', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#050505',
+                            surface: '#0d0d0d',
+                            accent: '#ff0033',
+                            gold: '#ffcc00',
+                            success: '#00ff88',
+                            warning: '#ffaa00'
+                        }
+                    }
+                }
+            }
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBCjwSro0y3VLc5L8p-0E9XFGOs9UcntSo",
+            authDomain: "eraflex-1f6d3.firebaseapp.com",
+            projectId: "eraflex-1f6d3",
+            storageBucket: "eraflex-1f6d3.firebasestorage.app",
+            messagingSenderId: "245361961645",
+            appId: "1:245361961645:web:1cb9c48b510cfb4b237424"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+    </script>
+    
+    <style>
+        * { cursor: none !important; }
+        
+        /* Sporty Ball Cursor */
+        #cursor-dot { 
+            width: 12px; 
+            height: 12px; 
+            background: #ff0033; 
+            border-radius: 50%; 
+            position: fixed; 
+            pointer-events: none; 
+            z-index: 10000; 
+            box-shadow: 0 0 10px #ff0033, 0 0 20px #ff0033;
+            transition: transform 0.1s ease;
+        }
+        #cursor-ring { 
+            width: 40px; 
+            height: 40px; 
+            border: 2px solid rgba(255, 0, 51, 0.5); 
+            border-radius: 50%; 
+            position: fixed; 
+            pointer-events: none; 
+            z-index: 9999; 
+            transition: all 0.15s ease-out; 
+        }
+        #cursor-ring.hover {
+            transform: scale(1.5);
+            border-color: #ffcc00;
+            background: rgba(255, 204, 0, 0.1);
+        }
+        
+        body { background: #050505; color: white; overflow-x: hidden; }
+        .glass { 
+            background: rgba(10, 10, 10, 0.85); 
+            backdrop-filter: blur(20px); 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+        }
+        .page-content { display: none; }
+        .page-content.active { display: block; animation: fadeInUp 0.6s ease; }
+        @keyframes fadeInUp { 
+            from { opacity: 0; transform: translateY(30px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        .kit-card { 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            background: linear-gradient(145deg, #0d0d0d, #1a1a1a); 
+            border: 1px solid rgba(255,255,255,0.05); 
+            position: relative;
+            overflow: hidden;
+        }
+        .kit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,0,51,0.1), transparent);
+            transition: left 0.5s;
+        }
+        .kit-card:hover::before {
+            left: 100%;
+        }
+        .kit-card:hover { 
+            transform: translateY(-10px) scale(1.02); 
+            border-color: #ff0033;
+            box-shadow: 0 20px 40px rgba(255, 0, 51, 0.2);
+        }
+        
+        /* VIDEO BACKGROUND STYLES */
+        .video-container { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: -1; 
+            overflow: hidden; 
+        }
+        .video-container video { 
+            min-width: 100%; 
+            min-height: 100%; 
+            object-fit: cover; 
+            opacity: 0.6; 
+            filter: brightness(0.6) contrast(1.1);
+        }
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 40%, #050505 100%);
+            z-index: 0;
+        }
+
+        /* Form Validation Styles */
+        .input-error {
+            border-color: #ff0033 !important;
+            animation: shake 0.5s;
+        }
+        .input-success {
+            border-color: #00ff88 !important;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .error-message {
+            color: #ff0033;
+            font-size: 11px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        /* Payment Options */
+        .payment-option {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .payment-option.selected {
+            border-color: #ff0033;
+            background: rgba(255, 0, 51, 0.1);
+        }
+
+        /* Loading Animation */
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #ff0033;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Chatbot Styles */
+        .chat-widget {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+        .chat-button {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ff0033, #ff3366);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(255, 0, 51, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+        .chat-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(255, 0, 51, 0.6);
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 10px 30px rgba(255, 0, 51, 0.4); }
+            50% { box-shadow: 0 10px 40px rgba(255, 0, 51, 0.7); }
+        }
+        .chat-window {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 380px;
+            height: 500px;
+            background: #0d0d0d;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+        .chat-window.active {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chat-header {
+            background: linear-gradient(135deg, #ff0033, #cc0022);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .message.user {
+            align-self: flex-end;
+            background: #ff0033;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message.bot {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-bottom-left-radius: 4px;
+        }
+        .chat-input-area {
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: white;
+            outline: none;
+        }
+        .chat-input:focus {
+            border-color: #ff0033;
+        }
+        .send-btn {
+            width: 45px;
+            height: 45px;
+            background: #ff0033;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .send-btn:hover {
+            background: #ff3366;
+            transform: scale(1.1);
+        }
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: 15px;
+        }
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #ff0033;
+            border-radius: 50%;
+            animation: typing 1s infinite;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Admin Styles */
+        .admin-card {
+            background: linear-gradient(145deg, #0d0d0d, #1a1a1a);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+        .admin-card:hover {
+            border-color: #ff0033;
+            transform: translateY(-5px);
+        }
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-pending { background: #ffaa00; color: #000; }
+        .status-processing { background: #00aaff; color: #fff; }
+        .status-shipped { background: #ff0033; color: #fff; }
+        .status-delivered { background: #00ff88; color: #000; }
+        .status-cancelled { background: #666; color: #fff; }
+
+        .order-row {
+            transition: all 0.3s ease;
+        }
+        .order-row:hover {
+            background: rgba(255, 0, 51, 0.05);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0d0d0d; }
+        ::-webkit-scrollbar-thumb { background: #ff0033; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+    <!-- Custom Cursor -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass h-20 flex items-center px-6 md:px-12 justify-between">
+        <div class="flex items-center gap-3 cursor-pointer hover-trigger" onclick="showPage('home')">
+            <div class="w-10 h-10 bg-brand-accent flex items-center justify-center font-display text-2xl italic font-black transform hover:rotate-12 transition">E</div>
+            <span class="font-display text-3xl tracking-wider">ERA<span class="text-brand-accent">FLEX</span></span>
+        </div>
+
+        <div class="hidden lg:flex gap-10 font-indian uppercase text-sm tracking-widest">
+            <button onclick="showPage('home')" class="hover:text-brand-accent transition hover-trigger">Home</button>
+            <button onclick="showPage('shop')" class="hover:text-brand-accent transition hover-trigger">Collections</button>
+            <button onclick="showPage('admin')" class="hover:text-brand-accent transition hover-trigger">Admin</button>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <div id="userProfile" class="hidden items-center gap-4 bg-white/5 p-1 rounded-full pr-4 border border-white/10 hover:border-brand-accent transition">
+                <div class="w-8 h-8 rounded-full bg-brand-accent flex items-center justify-center font-bold text-xs" id="userInitial">?</div>
+                <div class="flex flex-col">
+                    <span id="userEmail" class="text-[10px] font-bold truncate max-w-[100px]">User</span>
+                    <button onclick="handleSignOut()" class="text-[8px] text-brand-accent uppercase font-black text-left hover:text-white transition">Sign Out</button>
+                </div>
+            </div>
+            
+            <button id="authIcon" onclick="showPage('auth')" class="hover:text-brand-accent text-xl hover-trigger"><i class="far fa-user"></i></button>
+            <button onclick="toggleCart()" class="relative hover:text-brand-accent text-xl hover-trigger">
+                <i class="fas fa-shopping-bag"></i>
+                <span id="cartCount" class="absolute -top-2 -right-2 bg-brand-accent text-[10px] h-4 w-4 rounded-full flex items-center justify-center font-bold hidden animate-pulse">0</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Cart Sidebar -->
+    <div id="cartSidebar" class="fixed inset-y-0 right-0 z-[60] w-full md:w-96 bg-brand-surface border-l border-white/5 translate-x-full transition-transform duration-500 flex flex-col p-8">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="font-display text-3xl italic">YOUR BAG</h2>
+            <button onclick="toggleCart()" class="text-gray-500 hover:text-white hover-trigger"><i class="fas fa-times text-2xl"></i></button>
+        </div>
+        <div id="cartItems" class="flex-1 overflow-y-auto space-y-4 pr-2"></div>
+        <div class="pt-6 border-t border-white/10">
+            <div class="flex justify-between text-2xl font-display mb-6">
+                <span>TOTAL</span>
+                <span id="cartTotal" class="text-brand-accent">₹0</span>
+            </div>
+            <button onclick="startCheckout()" class="w-full bg-brand-accent py-4 font-bold tracking-widest hover:bg-white hover:text-black transition hover-trigger">PROCEED TO CHECKOUT</button>
+        </div>
+    </div>
+
+    <!-- Chatbot Widget -->
+    <div class="chat-widget">
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                    <i class="fas fa-robot text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">ERAFLEX Assistant</h3>
+                    <p class="text-xs opacity-80">Online 24/7</p>
+                </div>
+                <button onclick="toggleChat()" class="ml-auto hover-trigger">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    👋 Welcome to ERAFLEX! I'm your AI assistant. How can I help you today?
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Type your message..." onkeypress="handleChatKeypress(event)">
+                <div class="send-btn hover-trigger" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane text-white"></i>
+                </div>
+            </div>
+        </div>
+        <div class="chat-button hover-trigger" onclick="toggleChat()">
+            <i class="fas fa-comments text-2xl text-white"></i>
+        </div>
+    </div>
+
+    <main class="pt-20">
+        <!-- Home Page -->
+        <div id="page-home" class="page-content active">
+            <section class="relative h-[90vh] flex items-center px-6 md:px-20 overflow-hidden">
+                <div class="video-container">
+                    <video autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=1200">
+                        <source src="https://assets.mixkit.co/videos/preview/mixkit-basketball-player-dribbling-the-ball-in-the-stadium-4041-large.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="hero-overlay"></div>
+                
+                <!-- Animated Background Elements -->
+                <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-brand-accent/10 rounded-full blur-3xl animate-pulse"></div>
+                    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-brand-gold/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                </div>
+
+                <div class="max-w-4xl relative z-10">
+                    <div class="inline-block px-4 py-2 bg-brand-accent/20 border border-brand-accent/50 rounded-full mb-6">
+                        <span class="text-brand-accent font-indian text-sm tracking-widest">⚡ ELITE PERFORMANCE GEAR</span>
+                    </div>
+                    <h1 class="font-display text-7xl md:text-[9rem] leading-none italic mb-4 drop-shadow-2xl">
+                        LIMITLESS<br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-accent to-brand-gold">ATHLETICS</span>
+                    </h1>
+                    <p class="font-indian text-lg md:text-2xl tracking-[0.3em] mb-12 text-gray-300 uppercase">
+                        Premium Performance Gear For The Elite.
+                    </p>
+                    <div class="flex gap-4">
+                        <button onclick="showPage('shop')" class="bg-brand-accent px-12 py-5 font-bold text-lg hover:bg-white hover:text-black transition shadow-2xl hover-trigger group">
+                            SHOP THE COLLECTION
+                            <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition"></i>
+                        </button>
+                        <button onclick="showPage('shop')" class="border-2 border-white/30 px-8 py-5 font-bold text-lg hover:border-brand-accent hover:text-brand-accent transition hover-trigger">
+                            VIEW LOOKBOOK
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scroll Indicator -->
+                <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+                    <i class="fas fa-chevron-down text-2xl text-white/50"></i>
+                </div>
+            </section>
+
+            <!-- Featured Section -->
+            <section class="py-20 px-6 md:px-20 bg-gradient-to-b from-brand-dark to-brand-surface">
+                <div class="max-w-7xl mx-auto">
+                    <h2 class="font-display text-5xl italic mb-12 text-center">TRENDING NOW</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="relative group overflow-hidden rounded-2xl hover-trigger">
+                            <img src="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600" class="w-full h-80 object-cover transition transform group-hover:scale-110" alt="Football">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
+                                <div>
+                                    <h3 class="font-display text-2xl italic">FOOTBALL</h3>
+                                    <p class="text-gray-300 text-sm">Professional Kits</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative group overflow-hidden rounded-2xl hover-trigger">
+                            <img src="https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=600" class="w-full h-80 object-cover transition transform group-hover:scale-110" alt="Cricket">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
+                                <div>
+                                    <h3 class="font-display text-2xl italic">CRICKET</h3>
+                                    <p class="text-gray-300 text-sm">Official Jerseys</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative group overflow-hidden rounded-2xl hover-trigger">
+                            <img src="https://images.unsplash.com/photo-1515523110800-9415d13b84a8?w=600" class="w-full h-80 object-cover transition transform group-hover:scale-110" alt="Basketball">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
+                                <div>
+                                    <h3 class="font-display text-2xl italic">BASKETBALL</h3>
+                                    <p class="text-gray-300 text-sm">Swingman Edition</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Auth Page -->
+        <div id="page-auth" class="page-content">
+            <div class="max-w-md mx-auto py-24 px-6">
+                <div class="bg-brand-surface p-10 rounded-3xl border border-white/5 shadow-2xl">
+                    <div class="flex gap-6 mb-10">
+                        <button onclick="setAuthMode('login')" id="tabLogin" class="font-display text-2xl border-b-2 border-brand-accent text-white pb-2 hover-trigger">LOGIN</button>
+                        <button onclick="setAuthMode('reg')" id="tabReg" class="font-display text-2xl border-b-2 border-transparent text-gray-500 pb-2 hover-trigger">REGISTER</button>
+                    </div>
+                    
+                    <!-- Login Form -->
+                    <div id="formLogin" class="space-y-6">
+                        <div>
+                            <input type="email" id="email" placeholder="Email Address" class="w-full bg-black border border-white/10 p-4 rounded-xl focus:border-brand-accent outline-none transition hover-trigger" onblur="validateEmail('email')">
+                            <span class="error-message" id="email-error">Please enter a valid email address</span>
+                        </div>
+                        <div>
+                            <input type="password" id="pass" placeholder="Password" class="w-full bg-black border border-white/10 p-4 rounded-xl focus:border-brand-accent outline-none transition hover-trigger" onblur="validatePassword('pass')">
+                            <span class="error-message" id="pass-error">Password must be at least 6 characters</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <label class="flex items-center gap-2 cursor-pointer hover-trigger">
+                                <input type="checkbox" class="accent-brand-accent">
+                                <span class="text-gray-400">Remember me</span>
+                            </label>
+                            <a href="#" class="text-brand-accent hover:underline">Forgot Password?</a>
+                        </div>
+                        <button onclick="handleAuth('login')" class="w-full bg-brand-accent py-4 font-bold rounded-xl hover:brightness-110 transition hover-trigger flex items-center justify-center gap-2">
+                            <span>SIGN IN</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Register Form -->
+                    <div id="formReg" class="space-y-6 hidden">
+                        <div>
+                            <input type="text" id="regName" placeholder="Full Name" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none transition hover-trigger" onblur="validateName('regName')">
+                            <span class="error-message" id="regName-error">Please enter your full name</span>
+                        </div>
+                        <div>
+                            <input type="email" id="regEmail" placeholder="Email Address" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none transition hover-trigger" onblur="validateEmail('regEmail')">
+                            <span class="error-message" id="regEmail-error">Please enter a valid email address</span>
+                        </div>
+                        <div>
+                            <input type="password" id="regPass" placeholder="Create Password" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none transition hover-trigger" onblur="validatePassword('regPass')">
+                            <span class="error-message" id="regPass-error">Password must be at least 6 characters</span>
+                        </div>
+                        <div>
+                            <input type="password" id="regConfirmPass" placeholder="Confirm Password" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none transition hover-trigger" onblur="validateConfirmPassword('regPass', 'regConfirmPass')">
+                            <span class="error-message" id="regConfirmPass-error">Passwords do not match</span>
+                        </div>
+                        <button onclick="handleAuth('reg')" class="w-full bg-brand-accent py-4 font-bold rounded-xl hover:brightness-110 transition hover-trigger flex items-center justify-center gap-2">
+                            <span>CREATE ACCOUNT</span>
+                            <i class="fas fa-user-plus"></i>
+                        </button>
+                    </div>
+
+                    <div class="mt-8 text-center">
+                        <p class="text-gray-500 text-sm mb-4">Or continue with</p>
+                        <div class="flex justify-center gap-4">
+                            <button class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-brand-accent transition hover-trigger">
+                                <i class="fab fa-google"></i>
+                            </button>
+                            <button class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-brand-accent transition hover-trigger">
+                                <i class="fab fa-apple"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Page -->
+        <div id="page-shop" class="page-content">
+            <div class="max-w-7xl mx-auto py-16 px-6">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-4">
+                    <h2 class="font-display text-5xl italic">COLLECTIONS</h2>
+                    <div class="flex overflow-x-auto gap-4 no-scrollbar pb-2">
+                        <button onclick="renderShop('all')" class="filter-btn flex-shrink-0 px-8 py-3 bg-brand-accent text-black font-bold rounded-full hover-trigger" data-category="all">ALL KITS</button>
+                        <button onclick="renderShop('Football')" class="filter-btn flex-shrink-0 px-8 py-3 bg-brand-surface border border-white/10 rounded-full hover:border-brand-accent hover-trigger" data-category="Football">FOOTBALL</button>
+                        <button onclick="renderShop('Cricket')" class="filter-btn flex-shrink-0 px-8 py-3 bg-brand-surface border border-white/10 rounded-full hover:border-brand-accent hover-trigger" data-category="Cricket">CRICKET</button>
+                        <button onclick="renderShop('Basketball')" class="filter-btn flex-shrink-0 px-8 py-3 bg-brand-surface border border-white/10 rounded-full hover:border-brand-accent hover-trigger" data-category="Basketball">BASKETBALL</button>
+                    </div>
+                </div>
+                
+<!-- ================= FILTER & SORT SECTION (ADDED) ================= -->
+<div class="bg-gradient-to-r from-brand-surface to-black p-6 rounded-3xl border border-white/10 mb-10 shadow-xl">
+    <h3 class="font-display text-2xl italic mb-6 text-brand-accent">
+        FILTER & SORT PRODUCTS
+    </h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <input type="text" id="filterName" placeholder="Search Product"
+            class="bg-black border border-white/10 p-3 rounded-xl outline-none">
+
+        <select id="filterCategory"
+            class="bg-black border border-white/10 p-3 rounded-xl outline-none">
+            <option value="all">All Categories</option>
+            <option value="Football">Football</option>
+            <option value="Cricket">Cricket</option>
+            <option value="Basketball">Basketball</option>
+        </select>
+
+        <input type="text" id="filterBrand" placeholder="Brand"
+            class="bg-black border border-white/10 p-3 rounded-xl outline-none">
+
+        <input type="number" id="filterPrice" placeholder="Max Price"
+            class="bg-black border border-white/10 p-3 rounded-xl outline-none">
+
+        <select id="filterRating"
+            class="bg-black border border-white/10 p-3 rounded-xl outline-none">
+            <option value="0">All Ratings</option>
+            <option value="4">4★ & Above</option>
+            <option value="3">3★ & Above</option>
+        </select>
+    </div>
+
+    <div class="flex flex-wrap gap-4 mt-6">
+        <button onclick="applyFilters()"
+            class="px-6 py-3 bg-brand-accent text-black font-bold rounded-xl">
+            APPLY
+        </button>
+
+        <button onclick="sortPriceLowHigh()"
+            class="px-6 py-3 border border-brand-accent rounded-xl">
+            Price ↑
+        </button>
+
+        <button onclick="sortRatingHighLow()"
+            class="px-6 py-3 border border-brand-accent rounded-xl">
+            Rating ↓
+        </button>
+
+        <button onclick="resetFilters()"
+            class="px-6 py-3 bg-white/10 border border-white/20 rounded-xl">
+            RESET
+        </button>
+    </div>
+</div>
+<!-- ================= END FILTER SECTION ================= -->
+
+<div id="shopGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
+            </div>
+        </div>
+
+        <!-- Admin Page -->
+        <div id="page-admin" class="page-content">
+            <div class="max-w-7xl mx-auto py-12 px-6">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="font-display text-5xl italic">ADMIN DASHBOARD</h2>
+                        <p class="text-gray-400 mt-2">Manage orders and customer inquiries</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <button onclick="refreshOrders()" class="bg-brand-surface border border-white/10 px-6 py-3 rounded-xl hover:border-brand-accent transition hover-trigger flex items-center gap-2">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <button onclick="exportOrders()" class="bg-brand-accent px-6 py-3 rounded-xl font-bold hover:bg-white hover:text-black transition hover-trigger flex items-center gap-2">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="admin-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-400 text-sm">Total Orders</p>
+                                <p class="text-3xl font-display italic text-brand-accent" id="totalOrders">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-brand-accent/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-shopping-bag text-brand-accent text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="admin-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-400 text-sm">Revenue</p>
+                                <p class="text-3xl font-display italic text-brand-gold" id="totalRevenue">₹0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-brand-gold/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-rupee-sign text-brand-gold text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="admin-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-400 text-sm">Pending</p>
+                                <p class="text-3xl font-display italic text-brand-warning" id="pendingOrders">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-brand-warning/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-clock text-brand-warning text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="admin-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-400 text-sm">Delivered</p>
+                                <p class="text-3xl font-display italic text-brand-success" id="deliveredOrders">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-brand-success/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check-circle text-brand-success text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Table -->
+                <div class="bg-brand-surface rounded-3xl border border-white/5 overflow-hidden">
+                    <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                        <h3 class="font-display text-2xl italic">Recent Orders</h3>
+                        <div class="flex gap-3">
+                            <select id="statusFilter" onchange="filterOrders()" class="bg-black border border-white/10 rounded-lg px-4 py-2 text-sm outline-none focus:border-brand-accent">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-black/50">
+                                <tr>
+                                    <th class="text-left p-4 text-sm font-bold text-gray-400">ORDER ID</th>
+                                    <th class="text-left p-4 text-sm font-bold text-gray-400">CUSTOMER</th>
+                                    <th class="text-left p-4 text-sm font-bold text-gray-400">ITEMS</th>
+                                    <th class="text-left p-4 text-sm font-bold text-gray-400">TOTAL</th>
+                                    <th class="text-left p-4 text-sm font-bold text-gray-400">DATE</th>
+                                    <th class="text-left p-4 text-sm font-bold text-gray-400">STATUS</th>
+                                    <th class="text-left p-4 text-sm font-bold text-gray-400">ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <!-- Orders will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Customer Care Section -->
+                <div class="mt-12">
+                    <h3 class="font-display text-3xl italic mb-6">Customer Care Inquiries</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="inquiriesGrid">
+                        <!-- Inquiries will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checkout Page -->
+        <div id="page-checkout" class="page-content">
+            <div class="max-w-6xl mx-auto py-20 px-6">
+                <h2 class="font-display text-5xl italic mb-12 text-center">CHECKOUT</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <!-- Shipping Details -->
+                    <div class="bg-brand-surface p-10 rounded-3xl border border-white/5 space-y-8">
+                        <h3 class="font-display text-4xl italic mb-6 flex items-center gap-3">
+                            <i class="fas fa-shipping-fast text-brand-accent"></i>
+                            SHIPPING DETAILS
+                        </h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <input type="text" id="ship-name" placeholder="Full Name" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none transition hover-trigger" onblur="validateName('ship-name')">
+                                <span class="error-message" id="ship-name-error">Name is required</span>
+                            </div>
+                            <div>
+                                <input type="tel" id="ship-phone" placeholder="Phone Number" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none transition hover-trigger" onblur="validatePhone('ship-phone')">
+                                <span class="error-message" id="ship-phone-error">Enter valid 10-digit number</span>
+                            </div>
+                        </div>
+                        <div>
+                            <input type="text" id="ship-addr" placeholder="House No / Street / Area" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none transition hover-trigger" onblur="validateRequired('ship-addr')">
+                            <span class="error-message" id="ship-addr-error">Address is required</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <input type="text" id="ship-city" placeholder="City" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none transition hover-trigger" onblur="validateRequired('ship-city')">
+                                <span class="error-message" id="ship-city-error">City is required</span>
+                            </div>
+                            <div>
+                                <input type="text" id="ship-pincode" placeholder="PIN Code" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none transition hover-trigger" onblur="validatePincode('ship-pincode')">
+                                <span class="error-message" id="ship-pincode-error">Enter valid 6-digit PIN</span>
+                            </div>
+                        </div>
+                        <div>
+                            <select id="ship-state" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none transition hover-trigger" onchange="validateSelect('ship-state')">
+                                <option value="">Select State</option>
+                                <option value="MH">Maharashtra</option>
+                                <option value="DL">Delhi</option>
+                                <option value="KA">Karnataka</option>
+                                <option value="TN">Tamil Nadu</option>
+                                <option value="TG">Telangana</option>
+                                <option value="GJ">Gujarat</option>
+                                <option value="RJ">Rajasthan</option>
+                                <option value="UP">Uttar Pradesh</option>
+                                <option value="WB">West Bengal</option>
+                                <option value="PB">Punjab</option>
+                            </select>
+                            <span class="error-message" id="ship-state-error">Please select a state</span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Section -->
+                    <div class="bg-brand-surface p-10 rounded-3xl border border-white/5">
+                        <h3 class="font-display text-4xl italic mb-6 flex items-center gap-3">
+                            <i class="fas fa-credit-card text-brand-accent"></i>
+                            PAYMENT METHOD
+                        </h3>
+                        
+                        <!-- Payment Options -->
+                        <div class="space-y-3 mb-6">
+                            <div class="payment-option p-4 rounded-xl bg-black border border-white/10 cursor-pointer hover-trigger flex items-center gap-4" onclick="selectPayment('upi')">
+                                <input type="radio" name="payment" value="upi" class="accent-brand-accent" checked>
+                                <i class="fas fa-qrcode text-2xl"></i>
+                                <div>
+                                    <p class="font-bold">UPI / QR Code</p>
+                                    <p class="text-xs text-gray-400">Pay using any UPI app</p>
+                                </div>
+                            </div>
+                            <div class="payment-option p-4 rounded-xl bg-black border border-white/10 cursor-pointer hover-trigger flex items-center gap-4" onclick="selectPayment('card')">
+                                <input type="radio" name="payment" value="card" class="accent-brand-accent">
+                                <i class="fas fa-credit-card text-2xl"></i>
+                                <div>
+                                    <p class="font-bold">Credit / Debit Card</p>
+                                    <p class="text-xs text-gray-400">Visa, Mastercard, RuPay</p>
+                                </div>
+                            </div>
+                            <div class="payment-option p-4 rounded-xl bg-black border border-white/10 cursor-pointer hover-trigger flex items-center gap-4" onclick="selectPayment('cod')">
+                                <input type="radio" name="payment" value="cod" class="accent-brand-accent">
+                                <i class="fas fa-money-bill-wave text-2xl"></i>
+                                <div>
+                                    <p class="font-bold">Cash on Delivery</p>
+                                    <p class="text-xs text-gray-400">Pay when you receive</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- UPI Payment Section -->
+                        <div id="upi-section" class="payment-details">
+                            <div class="p-6 bg-white rounded-2xl mb-6 text-center">
+                                <p class="text-black text-xs font-bold mb-4 uppercase tracking-widest">Scan to Pay via UPI</p>
+                                <img id="upiQR" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=eraflex@okaxis&am=0" class="mx-auto border-4 border-black p-2">
+                                <p id="payAmount" class="text-black font-black text-2xl mt-4">₹0</p>
+                                <p class="text-gray-500 text-xs mt-2">eraflex@okaxis</p>
+                            </div>
+                        </div>
+
+                        <!-- Card Payment Section -->
+                        <div id="card-section" class="payment-details hidden space-y-4">
+                            <div>
+                                <input type="text" id="card-number" placeholder="Card Number" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none" maxlength="19" oninput="formatCardNumber(this)">
+                                <span class="error-message" id="card-number-error">Enter valid card number</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <input type="text" id="card-expiry" placeholder="MM/YY" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none" maxlength="5" oninput="formatExpiry(this)">
+                                    <span class="error-message" id="card-expiry-error">Invalid expiry</span>
+                                </div>
+                                <div>
+                                    <input type="text" id="card-cvv" placeholder="CVV" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none" maxlength="3" oninput="validateCVV(this)">
+                                    <span class="error-message" id="card-cvv-error">Invalid CVV</span>
+                                </div>
+                            </div>
+                            <div>
+                                <input type="text" id="card-name" placeholder="Name on Card" class="w-full bg-black border border-white/10 p-4 rounded-xl outline-none">
+                                <span class="error-message" id="card-name-error">Name is required</span>
+                            </div>
+                        </div>
+
+                        <!-- COD Section -->
+                        <div id="cod-section" class="payment-details hidden p-6 bg-brand-accent/10 border border-brand-accent/30 rounded-xl text-center">
+                            <i class="fas fa-truck text-4xl text-brand-accent mb-3"></i>
+                            <p class="font-bold">Cash on Delivery</p>
+                            <p class="text-sm text-gray-400 mt-2">Additional ₹50 COD charges applicable</p>
+                        </div>
+
+                        <div class="border-t border-white/10 pt-6 mt-6">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-400">Subtotal</span>
+                                <span id="subtotal">₹0</span>
+                            </div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-400">Shipping</span>
+                                <span class="text-brand-gold">FREE</span>
+                            </div>
+                            <div class="flex justify-between text-2xl font-display mb-6">
+                                <span>TOTAL</span>
+                                <span id="checkout-total" class="text-brand-accent">₹0</span>
+                            </div>
+                            <button onclick="completeOrder()" class="w-full bg-brand-accent py-5 font-black text-xl hover:bg-white hover:text-black transition hover-trigger flex items-center justify-center gap-3">
+                                <span>PLACE ORDER</span>
+                                <i class="fas fa-check-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Success Modal -->
+        <div id="success-modal" class="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center hidden">
+            <div class="bg-brand-surface p-12 rounded-3xl border border-brand-accent text-center max-w-md mx-4 transform scale-0 transition-transform duration-500" id="success-content">
+                <div class="w-20 h-20 bg-brand-accent rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-check text-3xl text-white"></i>
+                </div>
+                <h2 class="font-display text-4xl italic mb-4">ORDER CONFIRMED!</h2>
+                <p class="text-gray-400 mb-6">Your order has been successfully placed. You will receive a confirmation email shortly.</p>
+                <div class="bg-black p-4 rounded-xl mb-6">
+                    <p class="text-sm text-gray-400">Order ID</p>
+                    <p class="font-bold text-brand-accent" id="order-id">#ERX123456</p>
+                </div>
+                <button onclick="closeSuccessModal()" class="w-full bg-brand-accent py-4 font-bold rounded-xl hover:bg-white hover:text-black transition hover-trigger">
+                    CONTINUE SHOPPING
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- REAL WORLD KIT DATA WITH PROPER IMAGES ---
+        const products = [];
+        const footballTeams = [
+            { name: 'Real Madrid', img: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=400' },
+            { name: 'Manchester City', img: 'https://images.unsplash.com/photo-1522778119026-d647f0565c6a?w=400' },
+            { name: 'FC Barcelona', img: 'https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=400' },
+            { name: 'PSG', img: 'https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=400' },
+            { name: 'Liverpool', img: 'https://images.unsplash.com/photo-1628890923662-2cb23c2e0cfd?w=400' },
+            { name: 'Arsenal', img: 'https://images.unsplash.com/photo-1518605348400-437b5f43f2a6?w=400' },
+            { name: 'Bayern Munich', img: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=400' },
+            { name: 'Inter Milan', img: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400' },
+            { name: 'AC Milan', img: 'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=400' },
+            { name: 'Juventus', img: 'https://images.unsplash.com/photo-1522778526097-ce0a22ceb253?w=400' },
+            { name: 'Chelsea', img: 'https://images.unsplash.com/photo-1522778119026-d647f0565c6a?w=400' },
+            { name: 'Manchester United', img: 'https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=400' },
+            { name: 'Dortmund', img: 'https://images.unsplash.com/photo-1518605348400-437b5f43f2a6?w=400' },
+            { name: 'Atletico Madrid', img: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=400' },
+            { name: 'Spurs', img: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400' },
+            { name: 'Ajax', img: 'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=400' },
+            { name: 'Bayer Leverkusen', img: 'https://images.unsplash.com/photo-1522778526097-ce0a22ceb253?w=400' },
+            { name: 'Napoli', img: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=400' },
+            { name: 'Roma', img: 'https://images.unsplash.com/photo-1522778119026-d647f0565c6a?w=400' },
+            { name: 'Benfica', img: 'https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=400' },
+            { name: 'Porto', img: 'https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=400' },
+            { name: 'Al Nassr', img: 'https://images.unsplash.com/photo-1628890923662-2cb23c2e0cfd?w=400' },
+            { name: 'Inter Miami', img: 'https://images.unsplash.com/photo-1518605348400-437b5f43f2a6?w=400' },
+            { name: 'Brazil National', img: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=400' },
+            { name: 'France National', img: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400' }
+        ];
+
+        const cricketTeams = [
+            { name: 'Team India T20', img: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=400' },
+            { name: 'Team India ODI', img: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400' },
+            { name: 'Mumbai Indians', img: 'https://images.unsplash.com/photo-1562077772-3bd60f6ce7b9?w=400' },
+            { name: 'RCB Red', img: 'https://images.unsplash.com/photo-1589801258579-18e091f4ca14?w=400' },
+            { name: 'CSK Yellow', img: 'https://images.unsplash.com/photo-1603722038614-5e6c0b8c8c5e?w=400' },
+            { name: 'Gujarat Titans', img: 'https://images.unsplash.com/photo-1624523278526-28c4c5e0e0f6?w=400' },
+            { name: 'Kolkata Knight Riders', img: 'https://images.unsplash.com/photo-1593766821405-f605e0f9535f?w=400' },
+            { name: 'Delhi Capitals', img: 'https://images.unsplash.com/photo-1589801258579-18e091f4ca14?w=400' },
+            { name: 'LSG Blue', img: 'https://images.unsplash.com/photo-1603722038614-5e6c0b8c8c5e?w=400' },
+            { name: 'SRH Orange', img: 'https://images.unsplash.com/photo-1624523278526-28c4c5e0e0f6?w=400' },
+            { name: 'Australia World Cup', img: 'https://images.unsplash.com/photo-1593766821405-f605e0f9535f?w=400' },
+            { name: 'England T20', img: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=400' },
+            { name: 'South Africa ODI', img: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400' },
+            { name: 'Pakistan Green', img: 'https://images.unsplash.com/photo-1562077772-3bd60f6ce7b9?w=400' },
+            { name: 'New Zealand Black', img: 'https://images.unsplash.com/photo-1589801258579-18e091f4ca14?w=400' },
+            { name: 'West Indies Maroon', img: 'https://images.unsplash.com/photo-1603722038614-5e6c0b8c8c5e?w=400' },
+            { name: 'Rajasthan Royals', img: 'https://images.unsplash.com/photo-1624523278526-28c4c5e0e0f6?w=400' },
+            { name: 'Punjab Kings', img: 'https://images.unsplash.com/photo-1593766821405-f605e0f9535f?w=400' },
+            { name: 'USA Cricket', img: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=400' },
+            { name: 'Afghanistan Blue', img: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=400' },
+            { name: 'Ireland Green', img: 'https://images.unsplash.com/photo-1562077772-3bd60f6ce7b9?w=400' },
+            { name: 'Sri Lanka ODI', img: 'https://images.unsplash.com/photo-1589801258579-18e091f4ca14?w=400' },
+            { name: 'Surrey County', img: 'https://images.unsplash.com/photo-1603722038614-5e6c0b8c8c5e?w=400' },
+            { name: 'Yorkshire', img: 'https://images.unsplash.com/photo-1624523278526-28c4c5e0e0f6?w=400' },
+            { name: 'Melbourne Stars', img: 'https://images.unsplash.com/photo-1593766821405-f605e0f9535f?w=400' }
+        ];
+
+        const basketballTeams = [
+            { name: 'Lakers Gold', img: 'https://images.unsplash.com/photo-1515523110800-9415d13b84a8?w=400' },
+            { name: 'Lakers Black', img: 'https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=400' },
+            { name: 'Bulls Red', img: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400' },
+            { name: 'Warriors Blue', img: 'https://images.unsplash.com/photo-1574602305391-9693e0c4d6c9?w=400' },
+            { name: 'Celtics Green', img: 'https://images.unsplash.com/photo-1519861531473-920026393112?w=400' },
+            { name: 'Nets Black', img: 'https://images.unsplash.com/photo-1515523110800-9415d13b84a8?w=400' },
+            { name: 'Bucks Green', img: 'https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=400' },
+            { name: 'Suns Orange', img: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400' },
+            { name: 'Heat Vice', img: 'https://images.unsplash.com/photo-1574602305391-9693e0c4d6c9?w=400' },
+            { name: 'Sixers White', img: 'https://images.unsplash.com/photo-1519861531473-920026393112?w=400' },
+            { name: 'Mavericks Blue', img: 'https://images.unsplash.com/photo-1515523110800-9415d13b84a8?w=400' },
+            { name: 'Nuggets Navy', img: 'https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=400' },
+            { name: 'Raptors Red', img: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400' },
+            { name: 'Clippers White', img: 'https://images.unsplash.com/photo-1574602305391-9693e0c4d6c9?w=400' },
+            { name: 'Knicks Blue', img: 'https://images.unsplash.com/photo-1519861531473-920026393112?w=400' },
+            { name: 'Grizzlies Teal', img: 'https://images.unsplash.com/photo-1515523110800-9415d13b84a8?w=400' },
+            { name: 'Pelicans Navy', img: 'https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=400' },
+            { name: 'Thunder Blue', img: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400' },
+            { name: 'Jazz Yellow', img: 'https://images.unsplash.com/photo-1574602305391-9693e0c4d6c9?w=400' },
+            { name: 'Rockets Red', img: 'https://images.unsplash.com/photo-1519861531473-920026393112?w=400' },
+            { name: 'Pacers Gold', img: 'https://images.unsplash.com/photo-1515523110800-9415d13b84a8?w=400' },
+            { name: 'Kings Purple', img: 'https://images.unsplash.com/photo-1504450758481-7338eba7524a?w=400' },
+            { name: 'Magic Black', img: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400' },
+            { name: 'Hornets Teal', img: 'https://images.unsplash.com/photo-1574602305391-9693e0c4d6c9?w=400' },
+            { name: 'Spurs Grey', img: 'https://images.unsplash.com/photo-1519861531473-920026393112?w=400' }
+        ];
+
+        function populate() {
+            footballTeams.forEach((t, i) => products.push({ 
+                id: `F${i}`, 
+                category: 'Football', 
+                name: `${t.name} Home Kit 24/25`, 
+                price: 1999 + (i*10), 
+                img: t.img 
+            }));
+            cricketTeams.forEach((t, i) => products.push({ 
+                id: `C${i}`, 
+                category: 'Cricket', 
+                name: `${t.name} Official Jersey`, 
+                price: 2499 + (i*5), 
+                img: t.img 
+            }));
+            basketballTeams.forEach((t, i) => products.push({ 
+                id: `B${i}`, 
+                category: 'Basketball', 
+                name: `${t.name} Swingman Edition`, 
+                price: 3499 + (i*20), 
+                img: t.img 
+            }));
+        }
+        populate();
+
+        let cart = [];
+        let currentPaymentMethod = 'upi';
+        let allOrders = [];
+
+        // --- FORM VALIDATION FUNCTIONS ---
+        function showError(inputId, show) {
+            const errorEl = document.getElementById(inputId + '-error');
+            const inputEl = document.getElementById(inputId);
+            if (errorEl) {
+                errorEl.style.display = show ? 'block' : 'none';
+                if (inputEl) {
+                    if (show) {
+                        inputEl.classList.add('input-error');
+                        inputEl.classList.remove('input-success');
+                    } else {
+                        inputEl.classList.remove('input-error');
+                        inputEl.classList.add('input-success');
+                    }
+                }
+            }
+        }
+
+        function validateEmail(id) {
+            const email = document.getElementById(id).value;
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const isValid = regex.test(email);
+            showError(id, !isValid && email !== '');
+            return isValid;
+        }
+
+        function validatePassword(id) {
+            const pass = document.getElementById(id).value;
+            const isValid = pass.length >= 6;
+            showError(id, !isValid && pass !== '');
+            return isValid;
+        }
+
+        function validateConfirmPassword(passId, confirmId) {
+            const pass = document.getElementById(passId).value;
+            const confirm = document.getElementById(confirmId).value;
+            const isValid = pass === confirm && confirm !== '';
+            showError(confirmId, !isValid && confirm !== '');
+            return isValid;
+        }
+
+        function validateName(id) {
+            const name = document.getElementById(id).value;
+            const isValid = name.length >= 2;
+            showError(id, !isValid && name !== '');
+            return isValid;
+        }
+
+        function validatePhone(id) {
+            const phone = document.getElementById(id).value;
+            const regex = /^[0-9]{10}$/;
+            const isValid = regex.test(phone);
+            showError(id, !isValid && phone !== '');
+            return isValid;
+        }
+
+        function validatePincode(id) {
+            const pincode = document.getElementById(id).value;
+            const regex = /^[0-9]{6}$/;
+            const isValid = regex.test(pincode);
+            showError(id, !isValid && pincode !== '');
+            return isValid;
+        }
+
+        function validateRequired(id) {
+            const value = document.getElementById(id).value;
+            const isValid = value.trim() !== '';
+            showError(id, !isValid);
+            return isValid;
+        }
+
+        function validateSelect(id) {
+            const value = document.getElementById(id).value;
+            const isValid = value !== '';
+            showError(id, !isValid);
+            return isValid;
+        }
+
+        function formatCardNumber(input) {
+            let value = input.value.replace(/\D/g, '');
+            value = value.replace(/(.{4})/g, '$1 ').trim();
+            input.value = value;
+        }
+
+        function formatExpiry(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            input.value = value;
+        }
+
+        function validateCVV(input) {
+            input.value = input.value.replace(/\D/g, '');
+        }
+
+        // --- AUTHENTICATION ---
+        auth.onAuthStateChanged(user => {
+            const profile = document.getElementById('userProfile');
+            const authIcon = document.getElementById('authIcon');
+            if(user) {
+                profile.classList.replace('hidden', 'flex');
+                authIcon.classList.add('hidden');
+                document.getElementById('userEmail').innerText = user.email.split('@')[0].toUpperCase();
+                document.getElementById('userInitial').innerText = user.email[0].toUpperCase();
+            } else {
+                profile.classList.replace('flex', 'hidden');
+                authIcon.classList.remove('hidden');
+            }
+        });
+
+        async function handleAuth(mode) {
+            let isValid = true;
+            
+            if (mode === 'login') {
+                isValid = validateEmail('email') && validatePassword('pass');
+                if (!isValid) return;
+                
+                const email = document.getElementById('email').value;
+                const pass = document.getElementById('pass').value;
+                try {
+                    await auth.signInWithEmailAndPassword(email, pass);
+                    showNotification('Access Granted. Welcome back!', 'success');
+                    showPage('home');
+                } catch (e) { 
+                    showNotification(e.message, 'error');
+                }
+            } else {
+                isValid = validateName('regName') && validateEmail('regEmail') && 
+                         validatePassword('regPass') && validateConfirmPassword('regPass', 'regConfirmPass');
+                if (!isValid) return;
+                
+                const email = document.getElementById('regEmail').value;
+                const pass = document.getElementById('regPass').value;
+                try {
+                    await auth.createUserWithEmailAndPassword(email, pass);
+                    showNotification('Operator Enrolled. Welcome to ERAFLEX!', 'success');
+                    showPage('home');
+                } catch (e) { 
+                    showNotification(e.message, 'error');
+                }
+            }
+        }
+
+        function handleSignOut() {
+            auth.signOut().then(() => {
+                cart = []; updateCart();
+                showNotification('Session Terminated.', 'info');
+                location.reload();
+            });
+        }
+
+        // --- UI LOGIC ---
+        function showPage(id) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page-${id}`).classList.add('active');
+            if(id === 'shop') renderShop('all');
+            if(id === 'admin') loadAdminData();
+            window.scrollTo(0,0);
+        }
+
+        function setAuthMode(m) {
+            document.getElementById('formLogin').classList.toggle('hidden', m !== 'login');
+            document.getElementById('formReg').classList.toggle('hidden', m === 'login');
+            document.getElementById('tabLogin').classList.toggle('border-brand-accent', m === 'login');
+            document.getElementById('tabLogin').classList.toggle('text-white', m === 'login');
+            document.getElementById('tabLogin').classList.toggle('text-gray-500', m !== 'login');
+            document.getElementById('tabReg').classList.toggle('border-brand-accent', m !== 'login');
+            document.getElementById('tabReg').classList.toggle('text-white', m !== 'login');
+            document.getElementById('tabReg').classList.toggle('text-gray-500', m === 'login');
+        }
+
+        function renderShop(cat) {
+            const grid = document.getElementById('shopGrid');
+            const items = cat === 'all' ? products : products.filter(p => p.category === cat);
+            
+            // Update filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.category === cat) {
+                    btn.classList.add('bg-brand-accent', 'text-black');
+                    btn.classList.remove('bg-brand-surface', 'text-white');
+                } else {
+                    btn.classList.remove('bg-brand-accent', 'text-black');
+                    btn.classList.add('bg-brand-surface', 'text-white');
+                }
+            });
+            
+            grid.innerHTML = items.map(p => `
+                <div class="p-4 rounded-2xl kit-card hover-trigger">
+                    <div class="relative overflow-hidden rounded-xl mb-4">
+                        <img src="${p.img}" class="w-full h-64 object-cover transition transform hover:scale-110" alt="${p.name}">
+                        <div class="absolute top-2 right-2 bg-brand-accent text-black text-xs font-bold px-2 py-1 rounded">
+                            ${p.category}
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-brand-accent font-black tracking-widest uppercase mb-1">${p.category}</p>
+                    <h3 class="font-bold text-sm mb-4 truncate">${p.name}</h3>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xl font-display italic">₹${p.price.toLocaleString()}</span>
+                        <button onclick="addToCart('${p.id}')" class="bg-white text-black px-4 py-2 rounded-lg text-xs font-bold hover:bg-brand-accent hover:text-white transition flex items-center gap-2 hover-trigger">
+                            <i class="fas fa-plus"></i> ADD
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(id) {
+            const item = products.find(p => p.id === id);
+            cart.push(item);
+            updateCart();
+            
+            // Show notification
+            showNotification(`${item.name} added to bag!`, 'success');
+            
+            // Open cart sidebar
+            document.getElementById('cartSidebar').classList.remove('translate-x-full');
+            
+            // Create particle effect
+            createParticleEffect();
+        }
+
+        function updateCart() {
+            const list = document.getElementById('cartItems');
+            const total = cart.reduce((s, i) => s + i.price, 0);
+            document.getElementById('cartCount').innerText = cart.length;
+            document.getElementById('cartCount').classList.toggle('hidden', cart.length === 0);
+            
+            if (cart.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="fas fa-shopping-bag text-4xl mb-4"></i>
+                        <p>Your bag is empty</p>
+                    </div>
+                `;
+            } else {
+                list.innerHTML = cart.map((item, i) => `
+                    <div class="bg-black p-4 rounded-xl border border-white/5 flex justify-between items-center hover:border-brand-accent transition">
+                        <div class="flex items-center gap-4">
+                            <img src="${item.img}" class="w-16 h-16 object-cover rounded-lg">
+                            <div>
+                                <p class="text-xs font-bold text-brand-accent">${item.category}</p>
+                                <p class="text-sm font-bold">${item.name}</p>
+                                <p class="text-brand-accent text-sm">₹${item.price.toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <button onclick="removeItem(${i})" class="text-gray-500 hover:text-brand-accent transition hover-trigger p-2">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('cartTotal').innerText = `₹${total.toLocaleString()}`;
+            document.getElementById('subtotal').innerText = `₹${total.toLocaleString()}`;
+            document.getElementById('checkout-total').innerText = `₹${total.toLocaleString()}`;
+            document.getElementById('payAmount').innerText = `₹${total.toLocaleString()}`;
+            document.getElementById('upiQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=eraflex@okaxis&am=${total}&tn=ERAFLEX Order`;
+        }
+
+        function removeItem(i) { 
+            cart.splice(i, 1); 
+            updateCart(); 
+        }
+        
+        function toggleCart() { 
+            document.getElementById('cartSidebar').classList.toggle('translate-x-full'); 
+        }
+
+        function startCheckout() { 
+            if(cart.length > 0) { 
+                toggleCart(); 
+                showPage('checkout'); 
+            } else { 
+                showNotification('Your bag is empty!', 'error');
+            } 
+        }
+
+        function selectPayment(method) {
+            currentPaymentMethod = method;
+            document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            
+            document.querySelectorAll('.payment-details').forEach(el => el.classList.add('hidden'));
+            document.getElementById(method + '-section').classList.remove('hidden');
+        }
+
+        async function completeOrder() {
+            // Validate shipping details
+            const isValid = validateName('ship-name') && validatePhone('ship-phone') && 
+                          validateRequired('ship-addr') && validateRequired('ship-city') && 
+                          validatePincode('ship-pincode') && validateSelect('ship-state');
+            
+            if (!isValid) {
+                showNotification('Please fill all shipping details correctly', 'error');
+                return;
+            }
+
+            // Validate payment based on method
+            if (currentPaymentMethod === 'card') {
+                const cardValid = document.getElementById('card-number').value.length >= 19 &&
+                                document.getElementById('card-expiry').value.length === 5 &&
+                                document.getElementById('card-cvv').value.length === 3 &&
+                                document.getElementById('card-name').value !== '';
+                if (!cardValid) {
+                    showNotification('Please enter valid card details', 'error');
+                    return;
+                }
+            }
+
+            const user = auth.currentUser;
+            if(!user) {
+                showNotification('Please login to complete order', 'error');
+                showPage('auth');
+                return;
+            }
+
+            const orderTotal = cart.reduce((s, i) => s + i.price, 0);
+            const order = {
+                uid: user.uid,
+                email: user.email,
+                items: cart.map(i => ({ name: i.name, price: i.price, id: i.id })),
+                total: orderTotal,
+                shipping: {
+                    name: document.getElementById('ship-name').value,
+                    phone: document.getElementById('ship-phone').value,
+                    address: document.getElementById('ship-addr').value,
+                    city: document.getElementById('ship-city').value,
+                    pincode: document.getElementById('ship-pincode').value,
+                    state: document.getElementById('ship-state').value
+                },
+                paymentMethod: currentPaymentMethod,
+                status: 'pending',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                const docRef = await db.collection('orders').add(order);
+                
+                // Show success modal
+                document.getElementById('order-id').innerText = '#ERX' + docRef.id.substring(0, 8).toUpperCase();
+                document.getElementById('success-modal').classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('success-content').classList.remove('scale-0');
+                    document.getElementById('success-content').classList.add('scale-100');
+                }, 100);
+                
+                cart = []; 
+                updateCart();
+            } catch (e) {
+                showNotification('Error placing order: ' + e.message, 'error');
+            }
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('success-content').classList.remove('scale-100');
+            document.getElementById('success-content').classList.add('scale-0');
+            setTimeout(() => {
+                document.getElementById('success-modal').classList.add('hidden');
+                showPage('home');
+            }, 300);
+        }
+
+        // --- ADMIN FUNCTIONS ---
+        async function loadAdminData() {
+            try {
+                const ordersSnapshot = await db.collection('orders').orderBy('timestamp', 'desc').get();
+                allOrders = [];
+                ordersSnapshot.forEach(doc => {
+                    allOrders.push({ id: doc.id, ...doc.data() });
+                });
+                renderOrders(allOrders);
+                updateStats(allOrders);
+            } catch (e) {
+                console.error('Error loading orders:', e);
+            }
+        }
+
+        function renderOrders(orders) {
+            const tbody = document.getElementById('ordersTableBody');
+            if (orders.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-12 text-gray-500">
+                            <i class="fas fa-inbox text-4xl mb-4"></i>
+                            <p>No orders found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = orders.map(order => {
+                const date = order.timestamp ? new Date(order.timestamp.toDate()).toLocaleDateString() : 'N/A';
+                const items = order.items.map(i => i.name).join(', ');
+                const shortItems = items.length > 50 ? items.substring(0, 50) + '...' : items;
+                
+                return `
+                    <tr class="order-row border-b border-white/5">
+                        <td class="p-4 font-mono text-brand-accent">#${order.id.substring(0, 8).toUpperCase()}</td>
+                        <td class="p-4">
+                            <div class="font-bold">${order.shipping?.name || 'N/A'}</div>
+                            <div class="text-sm text-gray-400">${order.email}</div>
+                        </td>
+                        <td class="p-4 text-sm text-gray-300" title="${items}">${shortItems}</td>
+                        <td class="p-4 font-bold">₹${order.total?.toLocaleString() || 0}</td>
+                        <td class="p-4 text-sm text-gray-400">${date}</td>
+                        <td class="p-4">
+                            <select onchange="updateOrderStatus('${order.id}', this.value)" class="status-badge status-${order.status} bg-transparent border-0 cursor-pointer hover-trigger">
+                                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                                <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                        </td>
+                        <td class="p-4">
+                            <button onclick="viewOrderDetails('${order.id}')" class="text-brand-accent hover:text-white transition hover-trigger mr-3">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button onclick="deleteOrder('${order.id}')" class="text-red-500 hover:text-red-400 transition hover-trigger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateStats(orders) {
+            const total = orders.length;
+            const revenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+            const pending = orders.filter(o => o.status === 'pending').length;
+            const delivered = orders.filter(o => o.status === 'delivered').length;
+
+            document.getElementById('totalOrders').innerText = total;
+            document.getElementById('totalRevenue').innerText = '₹' + revenue.toLocaleString();
+            document.getElementById('pendingOrders').innerText = pending;
+            document.getElementById('deliveredOrders').innerText = delivered;
+        }
+
+        function filterOrders() {
+            const status = document.getElementById('statusFilter').value;
+            if (status === 'all') {
+                renderOrders(allOrders);
+            } else {
+                const filtered = allOrders.filter(o => o.status === status);
+                renderOrders(filtered);
+            }
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                await db.collection('orders').doc(orderId).update({ status: newStatus });
+                showNotification('Order status updated!', 'success');
+                loadAdminData();
+            } catch (e) {
+                showNotification('Error updating status: ' + e.message, 'error');
+            }
+        }
+
+        async function deleteOrder(orderId) {
+            if (!confirm('Are you sure you want to delete this order?')) return;
+            try {
+                await db.collection('orders').doc(orderId).delete();
+                showNotification('Order deleted!', 'success');
+                loadAdminData();
+            } catch (e) {
+                showNotification('Error deleting order: ' + e.message, 'error');
+            }
+        }
+
+        function viewOrderDetails(orderId) {
+            const order = allOrders.find(o => o.id === orderId);
+            if (!order) return;
+
+            const details = `
+                Order ID: #${order.id.substring(0, 8).toUpperCase()}
+                Customer: ${order.shipping?.name}
+                Email: ${order.email}
+                Phone: ${order.shipping?.phone}
+                Address: ${order.shipping?.address}, ${order.shipping?.city}, ${order.shipping?.state} - ${order.shipping?.pincode}
+                Items: ${order.items.map(i => i.name).join(', ')}
+                Total: ₹${order.total?.toLocaleString()}
+                Payment: ${order.paymentMethod?.toUpperCase()}
+                Status: ${order.status?.toUpperCase()}
+            `;
+            alert(details);
+        }
+
+        function refreshOrders() {
+            loadAdminData();
+            showNotification('Orders refreshed!', 'success');
+        }
+
+        function exportOrders() {
+            const csv = allOrders.map(o => ({
+                'Order ID': o.id,
+                'Customer': o.shipping?.name,
+                'Email': o.email,
+                'Items': o.items.map(i => i.name).join('; '),
+                'Total': o.total,
+                'Status': o.status,
+                'Date': o.timestamp ? new Date(o.timestamp.toDate()).toISOString() : ''
+            }));
+            
+            const headers = Object.keys(csv[0] || {});
+            const csvContent = [
+                headers.join(','),
+                ...csv.map(row => headers.map(h => `"${row[h] || ''}"`).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `eraflex_orders_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            showNotification('Orders exported!', 'success');
+        }
+
+        // --- CHATBOT FUNCTIONS ---
+        function toggleChat() {
+            const chatWindow = document.getElementById('chatWindow');
+            chatWindow.classList.toggle('active');
+        }
+
+        function handleChatKeypress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            // Generate response
+            setTimeout(() => {
+                removeTypingIndicator();
+                const response = generateBotResponse(message);
+                addMessage(response, 'bot');
+            }, 1000 + Math.random() * 1000);
+        }
+
+        function addMessage(text, sender) {
+            const container = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerText = text;
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const container = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = '<span></span><span></span><span></span>';
+            container.appendChild(typingDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+        }
+
+        function generateBotResponse(message) {
+            const lowerMsg = message.toLowerCase();
+            
+            const responses = {
+                'hello': 'Hello! Welcome to ERAFLEX! How can I assist you with your sports gear needs today?',
+                'hi': 'Hi there! 👋 Ready to find your perfect kit?',
+                'help': 'I can help you with:\n• Tracking orders\n• Product information\n• Size guides\n• Shipping details\n• Returns & exchanges\n• Payment options\n\nWhat would you like to know?',
+                'order': 'To track your order, please provide your order ID (starts with #ERX). You can also check your email for tracking details!',
+                'track': 'I can help you track your order! Please share your order ID starting with #ERX, or check your confirmation email for tracking links.',
+                'shipping': 'We offer free shipping on orders above ₹999! Standard delivery takes 3-5 business days. Express shipping (1-2 days) available for ₹149.',
+                'delivery': 'Standard delivery: 3-5 business days\nExpress delivery: 1-2 business days (₹149)\nFree shipping on orders above ₹999!',
+                'return': 'We offer 30-day hassle-free returns! Items must be unused with original tags. Contact our support team to initiate a return.',
+                'exchange': 'Exchanges are easy! Within 30 days, unused items with tags can be exchanged for a different size. Start the process from your order history.',
+                'size': 'Our kits follow standard sizing:\n• S: Chest 36-38"\n• M: Chest 38-40"\n• L: Chest 40-42"\n• XL: Chest 42-44"\n• XXL: Chest 44-46"\n\nNeed help with a specific product?',
+                'payment': 'We accept:\n• UPI (Google Pay, PhonePe, Paytm)\n• Credit/Debit Cards\n• Net Banking\n• Cash on Delivery (₹50 extra)\n\nAll transactions are secure and encrypted!',
+                'discount': 'Currently running:\n• FLAT20: 20% off on orders above ₹2999\n• WELCOME10: 10% off for new users\n• Check our homepage for flash sales!',
+                'contact': 'You can reach us at:\n📧 support@eraflex.com\n📞 1800-123-4567 (Toll-free)\n💬 WhatsApp: +91 98765 43210\n\nAvailable 9 AM - 9 PM, 7 days a week!',
+                'price': 'Our kits range from ₹1,999 to ₹4,999 depending on the team and edition. Premium collections may be priced higher. Check our shop for current prices!',
+                'quality': 'All ERAFLEX products are made with premium moisture-wicking fabric, official team logos, and authentic designs. We guarantee 100% genuine merchandise!',
+                'authentic': 'Absolutely! We are official partners with major sports leagues. Every product comes with authenticity certificates and holograms.',
+                'cancel': 'Orders can be cancelled within 2 hours of placement. After that, please contact our customer care team for assistance.',
+                'refund': 'Refunds are processed within 5-7 business days after we receive the returned item. The amount will be credited to your original payment method.',
+                'offer': 'Current offers:\n🏷️ Buy 2 Get 10% Off\n🏷️ Buy 3 Get 20% Off\n🏷️ Free shipping above ₹999\n🏷️ New user: Extra 10% off\n\nCheck the banner on our homepage for more!',
+                'stock': 'Most popular items are in stock! If an item shows "Add to Cart", it\'s available. Sold out items can be pre-ordered with 2-week delivery.',
+                'custom': 'Yes! We offer custom name and number printing for ₹299 extra. Add your customization during checkout!',
+                'wholesale': 'For bulk orders (10+ pieces), contact our B2B team at wholesale@eraflex.com for special pricing and corporate discounts.',
+                'store': 'We currently operate online only. Our flagship store in Mumbai is opening soon! Stay tuned for updates.',
+                'gift': 'Gift cards are available! Choose from ₹500, ₹1000, ₹2000, or ₹5000 denominations. They never expire and can be used on any product.',
+                'warranty': 'All products come with a 6-month quality warranty against manufacturing defects. Does not cover wear and tear from regular use.'
+            };
+
+            // Check for keywords
+            for (let key in responses) {
+                if (lowerMsg.includes(key)) {
+                    return responses[key];
+                }
+            }
+
+            // Default responses
+            const defaults = [
+                "I'm not sure I understood that. Could you rephrase? Or type 'help' to see what I can assist with!",
+                "Interesting question! For detailed assistance, please contact our support team at support@eraflex.com or call 1800-123-4567.",
+                "I'd love to help with that! Could you provide more details? You can also browse our FAQ section for quick answers.",
+                "Thanks for reaching out! For immediate assistance, try our quick commands:\n• 'track order' for order status\n• 'shipping' for delivery info\n• 'return' for exchange policy",
+                "I'm still learning! For complex queries, our human support team is available at support@eraflex.com 😊"
+            ];
+
+            return defaults[Math.floor(Math.random() * defaults.length)];
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-24 right-6 z-[200] px-6 py-4 rounded-xl font-bold transform translate-x-full transition-transform duration-300 flex items-center gap-3`;
+            
+            if (type === 'success') {
+                notification.classList.add('bg-brand-accent', 'text-white');
+                notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            } else if (type === 'error') {
+                notification.classList.add('bg-red-600', 'text-white');
+                notification.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            } else {
+                notification.classList.add('bg-gray-700', 'text-white');
+                notification.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+            }
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.remove('translate-x-full'), 100);
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function createParticleEffect() {
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * window.innerWidth + 'px';
+                particle.style.top = window.innerHeight + 'px';
+                particle.style.background = ['#ff0033', '#ffcc00', '#ffffff'][Math.floor(Math.random() * 3)];
+                document.body.appendChild(particle);
+                
+                const animation = particle.animate([
+                    { transform: 'translateY(0) scale(1)', opacity: 1 },
+                    { transform: `translateY(-${Math.random() * 300 + 100}px) scale(0)`, opacity: 0 }
+                ], {
+                    duration: 1000 + Math.random() * 1000,
+                    easing: 'cubic-bezier(0, .9, .57, 1)'
+                });
+                
+                animation.onfinish = () => particle.remove();
+            }
+        }
+
+        // --- CUSTOM CURSOR LOGIC ---
+        document.addEventListener('mousemove', e => {
+            const dot = document.getElementById('cursor-dot');
+            const ring = document.getElementById('cursor-ring');
+            
+            dot.style.left = e.clientX - 6 + 'px';
+            dot.style.top = e.clientY - 6 + 'px';
+            
+            // Smooth follow for ring
+            setTimeout(() => {
+                ring.style.left = (e.clientX - 20) + 'px';
+                ring.style.top = (e.clientY - 20) + 'px';
+            }, 50);
+        });
+
+        // Add hover effect to interactive elements
+        document.addEventListener('mouseover', e => {
+            if (e.target.closest('.hover-trigger') || e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.tagName === 'INPUT') {
+                document.getElementById('cursor-ring').classList.add('hover');
+            }
+        });
+
+        document.addEventListener('mouseout', e => {
+            document.getElementById('cursor-ring').classList.remove('hover');
+        });
+
+        // Initialize
+        window.onload = () => {
+            showPage('home');
+            
+            // Add sporty background animation
+            setInterval(() => {
+                if (Math.random() > 0.7) createParticleEffect();
+            }, 5000);
+        };
+    
+// ================= FILTER & SORT LOGIC (ADDED) =================
+let filteredProducts = [];
+
+function applyFilters() {
+    const name = document.getElementById("filterName").value.toLowerCase();
+    const category = document.getElementById("filterCategory").value;
+    const brand = document.getElementById("filterBrand").value.toLowerCase();
+    const price = parseFloat(document.getElementById("filterPrice").value);
+    const rating = parseFloat(document.getElementById("filterRating").value);
+
+    filteredProducts = products.filter(p => {
+        return (
+            (name === "" || p.name.toLowerCase().includes(name)) &&
+            (category === "all" || p.category === category) &&
+            (brand === "" || (p.brand && p.brand.toLowerCase().includes(brand))) &&
+            (isNaN(price) || p.price <= price) &&
+            (rating === 0 || (p.rating && p.rating >= rating))
+        );
+    });
+
+    renderFilteredProducts();
+}
+
+function renderFilteredProducts() {
+    const grid = document.getElementById("shopGrid");
+    const list = filteredProducts.length ? filteredProducts : products;
+
+    grid.innerHTML = list.map(p => `
+        <div class="kit-card p-4 rounded-2xl">
+            <img src="${p.img}" class="w-full h-60 object-cover rounded-xl mb-4">
+            <p class="text-xs text-brand-accent font-bold">${p.category}</p>
+            <h3 class="font-bold text-lg">${p.name}</h3>
+            <p class="text-sm text-gray-400">${p.brand || ""}</p>
+            <p class="text-brand-accent font-bold text-lg">₹${p.price.toLocaleString()}</p>
+            <button onclick="addToCart('${p.id}')"
+                class="w-full bg-brand-accent mt-3 py-2 font-bold rounded-xl">
+                ADD TO CART
+            </button>
+        </div>
+    `).join("");
+}
+
+function sortPriceLowHigh() {
+    filteredProducts = (filteredProducts.length ? filteredProducts : products)
+        .slice()
+        .sort((a, b) => a.price - b.price);
+    renderFilteredProducts();
+}
+
+function sortRatingHighLow() {
+    filteredProducts = (filteredProducts.length ? filteredProducts : products)
+        .slice()
+        .sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    renderFilteredProducts();
+}
+
+function resetFilters() {
+    document.getElementById("filterName").value = "";
+    document.getElementById("filterCategory").value = "all";
+    document.getElementById("filterBrand").value = "";
+    document.getElementById("filterPrice").value = "";
+    document.getElementById("filterRating").value = "0";
+
+    filteredProducts = [];
+    renderFilteredProducts();
+}
+// ================= END FILTER LOGIC =================
+
+</script>
+</body>
+</html>
