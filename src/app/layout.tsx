@@ -24,6 +24,7 @@ const rajdhani = Rajdhani({
 
 import { FirebaseAuthProvider } from "@/components/shared/FirebaseAuthProvider";
 import { ChatWidget } from "@/components/shared/ChatWidget";
+import { ToastProvider } from "@/components/shared/ToastProvider";
 
 export const metadata: Metadata = {
   title: "ERAFLEX | Elite Football Athletics",
@@ -41,6 +42,7 @@ export default function RootLayout({
         className={`${inter.variable} ${bebasNeue.variable} ${rajdhani.variable} font-sans bg-brand-dark text-white`}
       >
         <FirebaseAuthProvider>
+          <ToastProvider />
           <div className="contents">
             <ChatWidget />
           </div>
