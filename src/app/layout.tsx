@@ -5,11 +5,13 @@ import "./globals.css";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
 });
 
 const bebasNeue = Bebas_Neue({
   weight: "400",
   subsets: ["latin"],
+  display: "swap",
   variable: "--font-bebas-neue",
 });
 
@@ -17,6 +19,7 @@ const rajdhani = Rajdhani({
   weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
   variable: "--font-rajdhani",
+  display: "swap",
 });
 
 import { FirebaseAuthProvider } from "@/components/shared/FirebaseAuthProvider";

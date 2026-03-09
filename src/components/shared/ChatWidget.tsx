@@ -43,16 +43,32 @@ export const ChatWidget = () => {
     setInput("");
     setIsTyping(true);
 
-    // AI Logic Placeholder (Would call OpenAI API via a Next.js API route)
-    setTimeout(() => {
-      const botMessage: Message = {
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: input }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get response");
+      }
+
+      const botMessage: Message = await response.json();
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.error("Chat error:", error);
+      const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "bot",
-        content: `I've found some elite kits for "${input}". Our Real Madrid 24/25 Home Jersey is currently trending! Would you like to see it?`,
+        content: "Sorry, I encountered an error. Please try again!",
       };
-      setMessages((prev) => [...prev, botMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   return (

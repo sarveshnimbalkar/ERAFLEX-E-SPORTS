@@ -35,7 +35,7 @@ export const Header = () => {
   return (
     <nav
       className={cn(
-        "fixed w-full z-50 transition-all duration-500 px-6 md:px-12 flex items-center justify-between",
+        "w-full transition-all duration-500 px-6 md:px-12 flex items-center justify-between",
         isScrolled ? "h-16 glass" : "h-24 bg-transparent"
       )}
     >
