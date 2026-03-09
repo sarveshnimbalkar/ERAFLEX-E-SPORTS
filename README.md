@@ -13,7 +13,7 @@
   <a href="#tech-stack">Tech Stack</a> •
   <a href="#project-structure">Structure</a> •
   <a href="#getting-started">Getting Started</a> •
-  <a href="#environment-variables">Env Variables</a> •
+  <a href="#firebase-schema">Firebase Schema</a> •
   <a href="#pages--routes">Routes</a> •
   <a href="#contributing">Contributing</a>
 </p>
@@ -22,7 +22,7 @@
 
 ## 📌 Overview
 
-**ERAFLEX E-SPORTS** is a full-stack e-commerce web application for premium sports jerseys (Football, Basketball, Cricket). It features a sleek, dark-themed UI with dynamic animations, a jersey customizer, AR virtual try-on, Stripe-powered checkout, and Firebase-backed authentication & database.
+**ERAFLEX E-SPORTS** is a full-stack e-commerce web application for premium sports jerseys (Football, Basketball, Cricket). It features a sleek, dark-themed UI with dynamic animations, Stripe + COD checkout, Firebase authentication & database, admin dashboard with analytics, customer reviews, and a wishlist system.
 
 > 📖 **New to the project?** Check out [QUICKSETUP.md](./QUICKSETUP.md) for a step-by-step guide to get the project running on your machine in under 5 minutes.
 
@@ -33,16 +33,22 @@
 | Feature | Description |
 |---|---|
 | 🏠 **Landing Page** | Animated hero section with loading screen, product recommendations, and CTAs |
-| 🛍️ **Shop** | Browse jerseys by category (Football, Basketball, Cricket) with product cards |
+| 🛍️ **Shop** | Browse jerseys by category with filters, search, sorting, and review section |
 | 🎨 **Jersey Customizer** | 2D image-based jersey customization with name, number, and font style overlay |
 | 📸 **AR Virtual Try-On** | AI-powered AR lens to preview jerseys on yourself in real-time |
-| 🔥 **Trending** | View trending and popular products |
-| 🛒 **Cart & Checkout** | Persistent cart (Zustand + localStorage), sidebar cart, and Stripe checkout integration |
-| 🔐 **Authentication** | Firebase Auth with protected routes and user profiles |
-| 📊 **User Dashboard** | Order history and profile management |
-| 🛡️ **Admin Panel** | Admin-specific management panel |
-| 💬 **Chat Widget** | Integrated chat support widget available across all pages |
-| 🎭 **Premium UI/UX** | Framer Motion animations, glassmorphism, custom cursor, Google Fonts (Inter, Bebas Neue, Rajdhani) |
+| 🔥 **Trending** | Trending products page with reviews |
+| 🛒 **Cart & Checkout** | Persistent cart (Zustand + localStorage), sidebar cart, multi-step checkout |
+| 💳 **Stripe Payments** | Secure credit/debit card payment via Stripe |
+| 💵 **Cash on Delivery** | COD option with pending payment tracking |
+| 🔐 **Authentication** | Firebase Auth (email/password + Google) with protected routes |
+| 📊 **User Dashboard** | 6-tab dashboard: Profile, Orders, Payments, Wishlist, Reviews, Settings |
+| 🛡️ **Admin Dashboard** | Overview stats, order management, customer management, sales analytics with charts |
+| ⭐ **Review System** | Star ratings, comments, edit/delete — stored in Firebase with product average |
+| ❤️ **Wishlist** | Add/remove favorites via Firebase subcollection |
+| 💬 **Chat Widget** | Integrated chat support widget across all pages |
+| 🔔 **Toast Notifications** | Success/error feedback with react-hot-toast |
+| 💀 **Loading Skeletons** | Shimmer loading states for data-heavy components |
+| 🎭 **Premium UI/UX** | Framer Motion animations, glassmorphism, custom cursor, Google Fonts |
 
 ---
 
@@ -56,21 +62,22 @@
 | [TypeScript](https://www.typescriptlang.org/) | `^5` | Type-safe JavaScript |
 | [Tailwind CSS](https://tailwindcss.com/) | `v4` | Utility-first CSS framework |
 | [Framer Motion](https://www.framer.com/motion/) | `^12.35.1` | Animations & transitions |
+| [Recharts](https://recharts.org/) | Latest | Admin dashboard charts |
 | [Lucide React](https://lucide.dev/) | `^0.577.0` | Icon library |
-| [Three.js](https://threejs.org/) | `^0.183.2` | 3D rendering (customizer) |
+| [react-hot-toast](https://react-hot-toast.com/) | Latest | Toast notifications |
 
 ### Backend / Services
 | Technology | Purpose |
 |---|---|
-| [Firebase Auth](https://firebase.google.com/products/auth) | User authentication (email, social login) |
-| [Cloud Firestore](https://firebase.google.com/products/firestore) | NoSQL database (users, products, orders) |
+| [Firebase Auth](https://firebase.google.com/products/auth) | User authentication (email, Google) |
+| [Cloud Firestore](https://firebase.google.com/products/firestore) | NoSQL database (users, orders, reviews) |
 | [Firebase Storage](https://firebase.google.com/products/storage) | File/image storage |
 | [Stripe](https://stripe.com/) | Payment processing |
 
 ### State Management
 | Technology | Purpose |
 |---|---|
-| [Zustand](https://zustand-demo.pmnd.rs/) | Lightweight state management  |
+| [Zustand](https://zustand-demo.pmnd.rs/) | Lightweight state management |
 | `zustand/middleware` (persist) | Cart persistence via localStorage |
 
 ---
@@ -80,62 +87,61 @@
 ```
 ERAFLEX-E-SPORTS/
 ├── public/
-│   └── images/               # Static images (jerseys, logos, etc.)
+│   └── images/                   # Static images (jerseys, logos)
 │
 ├── src/
-│   ├── app/                  # Next.js App Router pages
-│   │   ├── layout.tsx        # Root layout (fonts, providers, metadata)
-│   │   ├── page.tsx          # Homepage (hero, recommendations, CTAs)
-│   │   ├── globals.css       # Global styles & Tailwind imports
-│   │   ├── admin/            # Admin panel page
-│   │   ├── auth/             # Authentication (login/signup) page
-│   │   ├── checkout/         # Stripe checkout page
-│   │   ├── customize/        # Jersey customizer page
-│   │   ├── dashboard/        # User dashboard page
-│   │   ├── shop/             # Product shop/catalog page
-│   │   ├── trending/         # Trending products page
-│   │   └── try-on/           # AR virtual try-on page
+│   ├── app/                      # Next.js App Router pages
+│   │   ├── layout.tsx            # Root layout (fonts, providers, toast)
+│   │   ├── page.tsx              # Homepage
+│   │   ├── globals.css           # Global styles + animations
+│   │   ├── admin/page.tsx        # Admin Dashboard (4 panels + charts)
+│   │   ├── auth/page.tsx         # Login / Register
+│   │   ├── checkout/page.tsx     # Multi-step checkout (Stripe + COD)
+│   │   ├── customize/page.tsx    # Jersey customizer
+│   │   ├── dashboard/page.tsx    # User Dashboard (6 tabs)
+│   │   ├── shop/page.tsx         # Product catalog + reviews
+│   │   ├── trending/page.tsx     # Trending products + reviews
+│   │   └── try-on/page.tsx       # AR virtual try-on
 │   │
 │   ├── components/
-│   │   ├── shared/           # Shared/global components
-│   │   │   ├── Header.tsx        # Navigation header
-│   │   │   ├── Footer.tsx        # Site footer
-│   │   │   ├── CartSidebar.tsx   # Slide-out cart drawer
-│   │   │   ├── ChatWidget.tsx    # Floating chat support widget
-│   │   │   ├── CustomCursor.tsx  # Custom animated cursor
-│   │   │   ├── FirebaseAuthProvider.tsx  # Auth context provider
-│   │   │   ├── LoadingScreen.tsx # Animated loading screen
-│   │   │   ├── ProtectedRoute.tsx # Auth-guarded route wrapper
-│   │   │   └── RecommendedProducts.tsx  # Product recommendation carousel
+│   │   ├── shared/               # Global components
+│   │   │   ├── Header.tsx            # Navigation (responsive)
+│   │   │   ├── Footer.tsx            # Site footer
+│   │   │   ├── CartSidebar.tsx       # Slide-out cart → checkout
+│   │   │   ├── ChatWidget.tsx        # Chat support
+│   │   │   ├── FirebaseAuthProvider.tsx
+│   │   │   ├── LoadingScreen.tsx
+│   │   │   ├── ProtectedRoute.tsx
+│   │   │   ├── RecommendedProducts.tsx
+│   │   │   └── ToastProvider.tsx     # Toast notifications
 │   │   ├── home/
-│   │   │   └── Hero.tsx          # Homepage hero section
+│   │   │   └── Hero.tsx
 │   │   ├── shop/
-│   │   │   ├── ProductCard.tsx   # Individual product card
-│   │   │   └── ProductGrid.tsx   # Product listing grid
-│   │   ├── dashboard/        # Dashboard-specific components
-│   │   └── ui/               # Reusable UI primitives
+│   │   │   ├── ProductCard.tsx       # Card with wishlist & add-to-cart
+│   │   │   ├── ProductGrid.tsx       # Filterable grid
+│   │   │   └── ReviewSection.tsx     # Star ratings + reviews (CRUD)
+│   │   └── ui/
+│   │       ├── Skeleton.tsx          # Loading skeletons
+│   │       └── StarRating.tsx        # Interactive star rating
 │   │
-│   ├── lib/                  # Library/utility functions
-│   │   ├── firebase.ts       # Firebase app initialization
-│   │   ├── db.ts             # Firestore database service (CRUD)
-│   │   ├── stripe.ts         # Stripe client initialization
-│   │   └── utils.ts          # General utility functions
+│   ├── lib/                      # Services & utilities
+│   │   ├── firebase.ts           # Firebase initialization
+│   │   ├── db.ts                 # Firestore services (user, order, review, wishlist, analytics)
+│   │   ├── stripe.ts             # Stripe client
+│   │   └── utils.ts              # cn() utility
 │   │
-│   ├── store/                # Zustand state stores
-│   │   ├── useCartStore.ts   # Cart state (items, add, remove, total)
-│   │   └── useUserStore.ts   # User auth state (profile, login status)
+│   ├── store/                    # Zustand stores
+│   │   ├── useCartStore.ts       # Cart state
+│   │   └── useUserStore.ts       # User auth state
 │   │
-│   ├── hooks/                # Custom React hooks
-│   └── types/                # TypeScript type definitions
+│   ├── hooks/                    # Custom hooks
+│   └── types/
+│       └── index.ts              # All TypeScript interfaces
 │
-├── legacy/                   # Legacy/archived code
-├── tailwind.config.ts        # Tailwind CSS configuration (custom theme)
-├── tsconfig.json             # TypeScript configuration
-├── next.config.ts            # Next.js configuration
-├── postcss.config.mjs        # PostCSS config (Tailwind plugin)
-├── eslint.config.mjs         # ESLint configuration
-├── package.json              # Dependencies & scripts
-└── .gitignore                # Git ignore rules
+├── tailwind.config.ts            # Custom theme
+├── tsconfig.json                 # TypeScript config
+├── next.config.ts                # Next.js config
+└── package.json                  # Dependencies
 ```
 
 ---
@@ -143,73 +149,122 @@ ERAFLEX-E-SPORTS/
 ## 🚀 Getting Started
 
 ### Prerequisites
-
-Make sure you have the following installed on your machine:
-
-- **Node.js** — `v18.17+` (recommended: `v20 LTS` or later)
-- **npm** — `v9+` (comes with Node.js)
-- **Git** — for cloning the repository
+- **Node.js** `v18.17+` (recommended: `v20 LTS`)
+- **npm** `v9+`
+- **Git**
 
 ### Installation
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/sarveshnimbalkar/ERAFLEX-E-SPORTS.git
-
-# 2. Navigate into the project directory
 cd ERAFLEX-E-SPORTS
-
-# 3. Install dependencies
 npm install
-
-# 4. Create your environment file (see section below)
-# Copy .env.example to .env.local and fill in your keys
-
-# 5. Start the development server
 npm run dev
 ```
 
-The app will be running at **[http://localhost:3000](http://localhost:3000)**.
+The app runs at **[http://localhost:3000](http://localhost:3000)**.
 
 ---
 
 ## 🔑 Environment Variables
 
-Create a `.env.local` file in the project root with the following variables:
+Create `.env.local` in the project root:
 
 ```env
-# ─── Firebase Configuration ───────────────────────────
-NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+# Firebase
+NEXT_PUBLIC_FIREBASE_API_KEY=your_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 
-# ─── Stripe Configuration ────────────────────────────
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
-STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+# Stripe
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_key
+STRIPE_SECRET_KEY=sk_test_your_key
 ```
-
-> ⚠️ **Important:** Never commit your `.env.local` file to version control. It is already listed in `.gitignore`.
-
-> 💡 **Note:** The Firebase config is currently hardcoded in `src/lib/firebase.ts` for development. For production, migrate these values to environment variables.
 
 ---
 
 ## 📄 Pages & Routes
 
-| Route | Page | Auth Required? |
+| Route | Page | Auth |
 |---|---|---|
-| `/` | Homepage (Hero, Recommendations, Customizer & Try-On CTAs) | ❌ No |
-| `/shop` | Product catalog with category filtering | ❌ No |
-| `/trending` | Trending & popular products | ❌ No |
-| `/customize` | Jersey Customizer (name, number, font) | ❌ No |
-| `/try-on` | AR Virtual Try-On | ❌ No |
-| `/auth` | Login / Sign Up | ❌ No |
-| `/checkout` | Stripe-powered checkout | ✅ Yes |
-| `/dashboard` | User profile & order history | ✅ Yes |
-| `/admin` | Admin management panel | ✅ Yes (Admin) |
+| `/` | Homepage | ❌ |
+| `/shop` | Product catalog + reviews | ❌ |
+| `/trending` | Trending products + reviews | ❌ |
+| `/customize` | Jersey Customizer | ❌ |
+| `/try-on` | AR Virtual Try-On | ❌ |
+| `/auth` | Login / Register | ❌ |
+| `/checkout` | Multi-step checkout (Stripe + COD) | ✅ |
+| `/dashboard` | User Dashboard (6 tabs) | ✅ |
+| `/admin` | Admin Dashboard (4 panels) | ✅ |
+
+---
+
+## 🗄️ Firebase Schema
+
+### `users/{uid}`
+```json
+{
+  "uid": "string",
+  "name": "string",
+  "email": "string",
+  "phone": "string",
+  "address": "string",
+  "city": "string",
+  "state": "string",
+  "pincode": "string",
+  "role": "user | admin",
+  "createdAt": "Timestamp"
+}
+```
+
+### `users/{uid}/wishlist/{productId}`
+```json
+{
+  "productId": "string",
+  "addedAt": "Timestamp"
+}
+```
+
+### `orders/{orderId}`
+```json
+{
+  "userId": "string",
+  "userEmail": "string",
+  "userName": "string",
+  "items": [
+    { "productId": "", "name": "", "team": "", "image": "", "price": 0, "quantity": 0 }
+  ],
+  "shippingAddress": {
+    "fullName": "", "street": "", "city": "", "state": "", "pincode": "", "phone": ""
+  },
+  "subtotal": 0,
+  "shippingCharges": 0,
+  "total": 0,
+  "paymentMethod": "stripe | cod",
+  "paymentStatus": "Paid | Pending | Failed | Refunded",
+  "stripePaymentId": "string (optional)",
+  "orderStatus": "Processing | Confirmed | Shipped | Delivered | Cancelled",
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp"
+}
+```
+
+### `reviews/{reviewId}`
+```json
+{
+  "userId": "string",
+  "userName": "string",
+  "userPhoto": "string (optional)",
+  "productId": "string",
+  "rating": 1-5,
+  "comment": "string",
+  "createdAt": "Timestamp",
+  "updatedAt": "Timestamp (optional)"
+}
+```
 
 ---
 
@@ -217,130 +272,55 @@ STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
 
 | Command | Description |
 |---|---|
-| `npm run dev` | Start the development server (with hot-reload) |
-| `npm run build` | Create an optimized production build |
-| `npm run start` | Start the production server |
-| `npm run lint` | Run ESLint to check for code issues |
+| `npm run dev` | Development server (hot-reload) |
+| `npm run build` | Production build |
+| `npm run start` | Serve production build |
+| `npm run lint` | ESLint check |
 
 ---
 
 ## 🎨 Design System
 
-The project uses a custom dark-themed design system defined in `tailwind.config.ts`:
-
 ### Color Palette
 | Token | Hex | Usage |
 |---|---|---|
-| `brand-dark` | `#050510` | Primary background (Deep Space Purple-Black) |
-| `brand-surface` | `#0f0c29` | Card/surface backgrounds (Cyber Void) |
-| `brand-accent` | `#ff0055` | Primary accent (Hot Pink/Red) |
-| `brand-gold` | `#ffaa00` | Secondary accent (Gold) |
-| `brand-success` | `#39ff14` | Success states (Toxic Acid Green) |
-| `brand-cyan` | `#00f0ff` | Highlight accent (Outrun Cyan) |
-| `brand-purple` | `#7000ff` | Tertiary accent (Electric Purple) |
+| `brand-dark` | `#050510` | Background |
+| `brand-surface` | `#0f0c29` | Cards/surfaces |
+| `brand-accent` | `#ff0055` | Primary accent |
+| `brand-gold` | `#ffaa00` | Prices, secondary |
+| `brand-success` | `#39ff14` | Success states |
+| `brand-cyan` | `#00f0ff` | Highlights |
+| `brand-purple` | `#7000ff` | Tertiary accent |
 
 ### Typography
-| Font | Variable | Usage |
-|---|---|---|
-| **Inter** | `--font-inter` | Body text, general UI |
-| **Bebas Neue** | `--font-bebas-neue` | Display headings, hero text |
-| **Rajdhani** | `--font-rajdhani` | Subheadings, Indian-inspired text |
-
----
-
-## 🗄️ Database Schema (Firestore)
-
-The app uses three main Firestore collections:
-
-### `users`
-```
-{
-  uid: string,
-  email: string,
-  displayName: string,
-  photoURL: string,
-  phoneNumber: string
-}
-```
-
-### `products`
-```
-{
-  id: string,
-  name: string,
-  team: string,
-  price: number,
-  image: string,
-  category: "Football" | "Cricket" | "Basketball",
-  brand?: string,
-  rating?: number
-}
-```
-
-### `orders`
-```
-{
-  id: string,
-  userId: string,
-  items: CartItem[],
-  total: number,
-  createdAt: Timestamp
-}
-```
+| Font | Usage |
+|---|---|
+| **Inter** | Body text |
+| **Bebas Neue** | Display headings |
+| **Rajdhani** | Subheadings, labels |
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Here's how to get started:
-
-1. **Fork** the repository
-2. **Create** a feature branch:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-3. **Commit** your changes with clear messages:
-   ```bash
-   git commit -m "feat: add new payment method support"
-   ```
-4. **Push** to your branch:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-5. **Open** a Pull Request against `main`
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit: `git commit -m "feat: add feature"`
+4. Push: `git push origin feature/your-feature`
+5. Open a Pull Request
 
 ### Commit Convention
-
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
-
-| Prefix | Usage |
-|---|---|
-| `feat:` | New feature |
-| `fix:` | Bug fix |
-| `docs:` | Documentation changes |
-| `style:` | Code formatting (no logic change) |
-| `refactor:` | Code restructuring |
-| `test:` | Adding/updating tests |
-| `chore:` | Build process, tooling changes |
+`feat:` | `fix:` | `docs:` | `style:` | `refactor:` | `test:` | `chore:`
 
 ---
 
-## 📋 Key Architecture Decisions
+## 📋 Architecture Decisions
 
-- **Next.js App Router** — File-system routing with React Server Components support
-- **Zustand over Redux** — Lightweight, minimal boilerplate state management ideal for this project's scale
-- **Firebase** — Serverless backend (no separate API server needed) for rapid iteration
-- **Tailwind CSS v4** — Utility-first styling with custom design tokens via `tailwind.config.ts`
-- **Framer Motion** — Declarative animations tightly integrated with React component lifecycle
-
----
-
-## 📞 Support
-
-If you encounter any issues or have questions, reach out to the team:
-
-- Open an issue on [GitHub Issues](https://github.com/sarveshnimbalkar/ERAFLEX-E-SPORTS/issues)
-- Contact the maintainer: **@sarveshnimbalkar**
+- **Next.js App Router** — File-system routing with RSC support
+- **Zustand** — Lightweight state, zero boilerplate
+- **Firebase** — Serverless backend for rapid iteration
+- **Recharts** — Declarative charts for admin analytics
+- **react-hot-toast** — Non-intrusive notifications
 
 ---
 

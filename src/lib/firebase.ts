@@ -4,12 +4,12 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBCjwSro0y3VLc5L8p-0E9XFGOs9UcntSo",
-  authDomain: "eraflex-1f6d3.firebaseapp.com",
-  projectId: "eraflex-1f6d3",
-  storageBucket: "eraflex-1f6d3.firebasestorage.app",
-  messagingSenderId: "245361961645",
-  appId: "1:245361961645:web:1cb9c48b510cfb4b237424"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
