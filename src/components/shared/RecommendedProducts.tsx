@@ -21,7 +21,7 @@ export const RecommendedProducts = ({
       <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
         <div>
           <div className="flex items-center gap-2 mb-4">
-            <Sparkles className="w-4 h-4 text-brand-gold animate-pulse" />
+            <Sparkles className="w-4 h-4 text-brand-gold" />
             <span className="text-brand-gold font-indian text-[10px] tracking-[0.4em] uppercase font-bold">AI POWERED ENGINE</span>
           </div>
           <h2 className="font-display text-5xl md:text-6xl italic uppercase tracking-tighter">

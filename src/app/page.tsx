@@ -4,10 +4,10 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Zap } from "lucide-react";
+
 import { Header } from "@/components/shared/Header";
 import { Footer } from "@/components/shared/Footer";
 import { Hero } from "@/components/home/Hero";
-import { LoadingScreen } from "@/components/shared/LoadingScreen";
 import { RecommendedProducts } from "@/components/shared/RecommendedProducts";
 import { Product } from "@/store/useCartStore";
 
@@ -19,22 +19,15 @@ const featuredProducts: Product[] = [
 ];
 
 export default function Home() {
-  const [loading, setLoading] = useState(true);
-
   return (
     <main className="relative min-h-screen bg-brand-dark">
-      <AnimatePresence>
-        {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
-      </AnimatePresence>
-
-      {!loading && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-        >
-          <Header />
-          <Hero />
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        <Header />
+        <Hero />
           
           <RecommendedProducts products={featuredProducts} />
 
@@ -56,7 +49,7 @@ export default function Home() {
                    </p>
                    <Link 
                       href="/customize"
-                      className="inline-flex bg-white text-black px-12 py-5 font-black text-xl hover:bg-brand-accent hover:text-white transition-all duration-500 shadow-2xl skew-x-[-10deg] hover:skew-x-0"
+                      className="inline-flex bg-white text-black px-12 py-5 font-black text-xl hover:bg-white/90 hover:scale-[1.02] transition-all duration-500 shadow-xl"
                    >
                       START 3D BUILDER
                    </Link>
@@ -67,11 +60,11 @@ export default function Home() {
           {/* Feature Highlight: AR Try-On */}
           <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div className="relative aspect-video rounded-3xl overflow-hidden glass border border-white/10 group">
-                    <img src="https://images.unsplash.com/photo-1522770179533-24471fcdba45?w=1000" className="w-full h-full object-cover grayscale opacity-50 contrast-125" alt="AR" />
+                <div className="relative aspect-video rounded-3xl overflow-hidden glass border border-white/10 group shadow-2xl">
+                    <img src="https://images.unsplash.com/photo-1522770179533-24471fcdba45?w=1000" className="w-full h-full object-cover grayscale opacity-50 contrast-125 group-hover:scale-105 transition-transform duration-700" alt="AR" />
                     <div className="absolute inset-0 flex items-center justify-center">
-                         <div className="w-20 h-20 bg-brand-accent/20 rounded-full flex items-center justify-center border border-brand-accent animate-pulse">
-                             <Zap className="w-8 h-8 text-brand-accent" />
+                         <div className="w-20 h-20 bg-brand-surface/80 backdrop-blur-md rounded-full flex items-center justify-center border border-white/10 group-hover:border-white/30 transition-colors">
+                             <Zap className="w-8 h-8 text-white/80" />
                          </div>
                     </div>
                 </div>
@@ -95,7 +88,6 @@ export default function Home() {
 
           <Footer />
         </motion.div>
-      )}
     </main>
   );
 }

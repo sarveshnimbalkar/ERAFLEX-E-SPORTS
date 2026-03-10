@@ -1,42 +1,27 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Zap } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 
 export const Hero = () => {
   return (
     <section className="relative h-screen flex flex-col justify-center overflow-hidden pt-20">
-      {/* Video Background with GenZ Cyberpunk Tint */}
+      {/* Background Image with Premium Tint */}
       <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="w-full h-full object-cover opacity-60 mix-blend-luminosity"
-          poster="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200"
-        >
-          <source
-            src="https://assets.mixkit.co/videos/preview/mixkit-abstract-technology-connection-loop-1898-large.mp4"
-            type="video/mp4"
-          />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-tr from-brand-dark via-brand-surface/80 to-brand-purple/20" />
+        <Image
+          src="/hero-bg.png"
+          alt="Premium Elite Sports Gear"
+          fill
+          priority
+          className="object-cover opacity-80"
+          quality={100}
+        />
+        <div className="absolute inset-0 bg-gradient-to-tr from-brand-dark via-brand-surface/70 to-brand-purple/20" />
       </div>
 
       {/* Hero Content - Brutalist Left Alignment */}
       <div className="relative z-10 px-6 md:px-16 w-full max-w-7xl mx-auto flex flex-col items-start mt-12">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="inline-flex items-center gap-3 px-5 py-2 bg-black/50 border border-brand-cyan/50 rounded-full mb-8 backdrop-blur-md shadow-[0_0_15px_rgba(0,240,255,0.2)]"
-        >
-          <Zap className="w-5 h-5 text-brand-cyan animate-pulse" />
-          <span className="text-brand-cyan font-indian text-xs tracking-[0.4em] uppercase font-bold">
-            ERA VISUAL LABS // 2026
-          </span>
-        </motion.div>
 
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -66,11 +51,11 @@ export const Hero = () => {
           transition={{ duration: 0.8, delay: 0.7 }}
           className="flex flex-col sm:flex-row gap-6 justify-start w-full"
         >
-          <button className="bg-gradient-to-r from-brand-accent to-brand-purple px-12 py-5 font-black text-xl hover:from-white hover:to-white hover:text-black transition-all duration-500 shadow-[0_0_30px_rgba(255,0,85,0.6)] group hover-trigger flex items-center justify-center gap-3 skew-x-[-10deg] hover:skew-x-0">
+          <button className="bg-gradient-to-r from-brand-accent to-brand-purple px-12 py-5 font-black text-xl hover:from-white hover:to-white hover:text-black transition-all duration-500 shadow-xl group hover-trigger flex items-center justify-center gap-3">
             ENTER THE DROP
             <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" />
           </button>
-          <button className="border border-brand-cyan/30 px-10 py-5 font-black text-xl hover:border-brand-cyan hover:bg-brand-cyan/10 hover:text-brand-cyan transition-all duration-300 hover-trigger backdrop-blur-md skew-x-[-10deg] hover:skew-x-0">
+          <button className="border border-brand-cyan/30 px-10 py-5 font-black text-xl hover:border-brand-cyan hover:bg-brand-cyan/10 hover:text-brand-cyan transition-all duration-300 hover-trigger backdrop-blur-md">
             VIEW CAMPAIGN
           </button>
         </motion.div>
@@ -81,10 +66,10 @@ export const Hero = () => {
         <motion.div 
            animate={{ x: ["0%", "-50%"] }}
            transition={{ ease: "linear", duration: 20, repeat: Infinity }}
-           className="flex whitespace-nowrap gap-12 font-display italic text-2xl text-white/30 tracking-widest"
+           className="flex whitespace-nowrap gap-12 font-display italic text-2xl text-white/40 tracking-widest"
         >
            {Array(10).fill(0).map((_, i) => (
-             <span key={i}>EF-2026 // NEXT GEN PERFORMANCE // SYSTEM ONLINE // <span className="text-brand-cyan">0100100</span> //</span>
+             <span key={i}>EF-2026 // PREMIUM ATHLETICS // <span className="text-brand-accent">PERFORMANCE GEAR</span> //</span>
            ))}
         </motion.div>
       </div>

@@ -2,74 +2,39 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, Send, X, Bot, User, Loader2, Search } from "lucide-react";
+import { MessageSquare, Send, X, Bot, User, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface Message {
-  id: string;
-  role: "user" | "bot";
-  content: string;
-}
+import { useChat, type UIMessage } from "@ai-sdk/react";
 
 export const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      role: "bot",
-      content: "👋 Welcome to ERAFLEX AI! I'm your elite gear specialist. Searching for a specific team, player, or league?",
-    },
-  ]);
-  const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [input, setInput] = useState("");
+
+  const { messages, sendMessage, status } = useChat({
+    messages: [
+      {
+        id: "1",
+        role: "assistant",
+        parts: [{ type: "text", text: "👋 Welcome to ERAFLEX AI! I'm your elite gear specialist. Searching for a specific team, player, or league?" }],
+      } as UIMessage,
+    ],
+  });
+
+  const isLoading = status === "submitted" || status === "streaming";
+
+  const handleSend = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    sendMessage({ role: "user", parts: [{ type: "text", text: input }], id: Date.now().toString() } as UIMessage);
+    setInput("");
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, isTyping]);
-
-  const handleSend = async () => {
-    if (!input.trim()) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: input,
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setIsTyping(true);
-
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: input }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to get response");
-      }
-
-      const botMessage: Message = await response.json();
-      setMessages((prev) => [...prev, botMessage]);
-    } catch (error) {
-      console.error("Chat error:", error);
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "bot",
-        content: "Sorry, I encountered an error. Please try again!",
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsTyping(false);
-    }
-  };
+  }, [messages, isLoading]);
 
   return (
     <div className="fixed bottom-8 right-8 z-[100]">
@@ -108,7 +73,7 @@ export const ChatWidget = () => {
               ref={scrollRef}
               className="flex-1 overflow-y-auto p-6 space-y-6 no-scrollbar"
             >
-              {messages.map((msg) => (
+              {messages.map((msg: any) => (
                 <div 
                   key={msg.id}
                   className={cn(
@@ -126,11 +91,11 @@ export const ChatWidget = () => {
                     "p-4 rounded-2xl text-sm leading-relaxed",
                     msg.role === "user" ? "bg-brand-accent text-white rounded-tr-none" : "bg-white/5 border border-white/5 rounded-tl-none font-indian"
                   )}>
-                    {msg.content}
+                    {msg.content || (msg.parts && msg.parts.find((p: any) => p.type === 'text')?.text) || ''}
                   </div>
                 </div>
               ))}
-              {isTyping && (
+              {isLoading && messages[messages.length - 1]?.role === "user" && (
                 <div className="flex gap-3 max-w-[85%]">
                   <div className="w-8 h-8 rounded-full bg-brand-accent/20 flex items-center justify-center flex-shrink-0 mt-1">
                     <Bot className="w-4 h-4 text-brand-accent" />
@@ -143,36 +108,36 @@ export const ChatWidget = () => {
             </div>
 
             {/* Input Area */}
-            <div className="p-6 bg-black/40 border-t border-white/5">
+            <form onSubmit={handleSend} className="p-6 bg-black/40 border-t border-white/5">
               <div className="relative group">
                 <input 
                   type="text"
                   placeholder="Ask ERAFLEX AI..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                  className="w-full bg-brand-dark border border-white/10 p-4 pr-12 rounded-xl outline-none focus:border-brand-accent transition-all duration-300 font-indian text-xs tracking-widest uppercase"
+                  className="w-full bg-brand-dark border border-white/10 p-4 pr-12 rounded-xl outline-none focus:border-brand-accent transition-all duration-300 font-indian text-xs tracking-widest uppercase placeholder:normal-case"
                 />
                 <button 
-                  onClick={handleSend}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 hover:text-brand-accent transition-colors"
+                  type="submit"
+                  disabled={isLoading || !input.trim()}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 hover:text-brand-accent transition-colors disabled:opacity-50"
                 >
                   <Send className="w-5 h-5" />
                 </button>
               </div>
-            </div>
+            </form>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Toggle Button */}
       <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 bg-brand-accent rounded-full shadow-[0_0_30px_rgba(255,0,51,0.5)] flex items-center justify-center group hover-trigger relative z-[101]"
+        className="w-16 h-16 bg-brand-accent rounded-full shadow-2xl shadow-brand-accent/20 border border-white/10 flex items-center justify-center group hover-trigger relative z-[101]"
       >
-        <MessageSquare className="w-8 h-8 text-white group-hover:rotate-12 transition-transform duration-300" />
+        <MessageSquare className="w-8 h-8 text-white group-hover:scale-110 transition-transform duration-300" />
       </motion.button>
     </div>
   );

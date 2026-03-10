@@ -38,8 +38,8 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
       setLoading(true);
       const data = await reviewService.getProductReviews(productId);
       setReviews(data);
-    } catch {
-      console.error("Failed to load reviews");
+    } catch (err) {
+      console.warn("Could not load reviews", err);
     } finally {
       setLoading(false);
     }
