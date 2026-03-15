@@ -71,7 +71,7 @@ export const CartSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                     </div>
                     <div className="flex-1 flex flex-col justify-between py-1 min-w-0">
                       <div>
-                        <div className="flex justify-between items-start gap-2">
+                        <div className="flex justify-between items-center gap-2">
                           <h3 className="font-display text-base italic uppercase truncate">{item.name}</h3>
                           <button 
                             onClick={() => removeItem(item.id)}
@@ -83,7 +83,7 @@ export const CartSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () 
                         <p className="text-[10px] text-gray-500 font-indian tracking-widest uppercase">{item.team}</p>
                       </div>
 
-                      <div className="flex justify-between items-end">
+                      <div className="flex justify-between items-center mt-2">
                         <div className="flex items-center gap-3 bg-brand-dark px-3 py-1.5 rounded-lg border border-white/5">
                           <button 
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}

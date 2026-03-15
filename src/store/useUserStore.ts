@@ -17,7 +17,7 @@ interface UserStore {
     setIsLoading: (loading: boolean) => void;
 }
 
-export const useUserStore = create<UserStore>((set) => ({
+export const useUserStore = create<UserStore>()((set) => ({
     user: null,
     isLoading: true,
     setUser: (user) => {

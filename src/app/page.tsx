@@ -9,6 +9,7 @@ import { Header } from "@/components/shared/Header";
 import { Footer } from "@/components/shared/Footer";
 import { Hero } from "@/components/home/Hero";
 import { RecommendedProducts } from "@/components/shared/RecommendedProducts";
+import { LoadingScreen } from "@/components/shared/LoadingScreen";
 import { Product } from "@/store/useCartStore";
 
 const featuredProducts: Product[] = [
@@ -19,13 +20,20 @@ const featuredProducts: Product[] = [
 ];
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
+
   return (
     <main className="relative min-h-screen bg-brand-dark">
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-      >
+      <AnimatePresence>
+        {isLoading && <LoadingScreen key="loading" onComplete={() => setIsLoading(false)} />}
+      </AnimatePresence>
+
+      {!isLoading && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
         <Header />
         <Hero />
           
@@ -36,7 +44,7 @@ export default function Home() {
             <div className="bg-brand-surface rounded-[3rem] border border-white/5 glass p-12 md:p-24 relative group">
                 <div className="absolute top-0 right-0 w-1/2 h-full hidden lg:block">
                    <div className="absolute inset-0 bg-gradient-to-l from-brand-accent/20 to-transparent z-10" />
-                   <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1541534741688-6078c64b5913?w=1000')] bg-cover bg-center grayscale opacity-30 group-hover:scale-110 transition-transform duration-1000" />
+                   <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=1000&auto=format&fit=crop')] bg-cover bg-center grayscale opacity-30 group-hover:scale-110 transition-transform duration-1000" />
                 </div>
                 
                 <div className="relative z-20 max-w-xl space-y-8">
@@ -61,7 +69,7 @@ export default function Home() {
           <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div className="relative aspect-video rounded-3xl overflow-hidden glass border border-white/10 group shadow-2xl">
-                    <img src="https://images.unsplash.com/photo-1522770179533-24471fcdba45?w=1000" className="w-full h-full object-cover grayscale opacity-50 contrast-125 group-hover:scale-105 transition-transform duration-700" alt="AR" />
+                    <img src="https://images.unsplash.com/photo-1508344928928-7165b67de128?w=1000&auto=format&fit=crop" className="w-full h-full object-cover grayscale opacity-50 contrast-125 group-hover:scale-105 transition-transform duration-700" alt="AR" />
                     <div className="absolute inset-0 flex items-center justify-center">
                          <div className="w-20 h-20 bg-brand-surface/80 backdrop-blur-md rounded-full flex items-center justify-center border border-white/10 group-hover:border-white/30 transition-colors">
                              <Zap className="w-8 h-8 text-white/80" />
@@ -88,6 +96,7 @@ export default function Home() {
 
           <Footer />
         </motion.div>
+      )}
     </main>
   );
 }
