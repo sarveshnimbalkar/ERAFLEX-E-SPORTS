@@ -35,20 +35,21 @@
 | 🏠 **Landing Page** | Animated hero section with loading screen, product recommendations, and CTAs |
 | 🛍️ **Shop** | Browse jerseys by category with filters, search, sorting, and review section |
 | 🎨 **Jersey Customizer** | 2D image-based jersey customization with name, number, and font style overlay |
-| 📸 **AR Virtual Try-On** | AI-powered AR lens to preview jerseys on yourself in real-time |
+| 📸 **AR Virtual Try-On** | AI-powered AR lens 2.0 with body tracking simulation and selection bar |
 | 🔥 **Trending** | Trending products page with reviews |
 | 🛒 **Cart & Checkout** | Persistent cart (Zustand + localStorage), sidebar cart, multi-step checkout |
 | 💳 **Stripe Payments** | Secure credit/debit card payment via Stripe |
 | 💵 **Cash on Delivery** | COD option with pending payment tracking |
-| 🔐 **Authentication** | Firebase Auth (email/password + Google) with protected routes |
+| 🔐 **Authentication** | Firebase Auth (email/password + Google) with Terms Acceptance |
 | 📊 **User Dashboard** | 6-tab dashboard: Profile, Orders, Payments, Wishlist, Reviews, Settings |
 | 🛡️ **Admin Dashboard** | Overview stats, order management, customer management, sales analytics with charts |
-| ⭐ **Review System** | Star ratings, comments, edit/delete — stored in Firebase with product average |
+| ⭐ **Enhanced Reviews** | Verified buyer badges, image uploads, sorting, and star ratings |
 | ❤️ **Wishlist** | Add/remove favorites via Firebase subcollection |
-| 💬 **Chat Widget** | Integrated chat support widget across all pages |
+| 🤖 **AI Chat Assistant** | GPT-powered brand specialist with product knowledge and FAQs |
 | 🔔 **Toast Notifications** | Success/error feedback with react-hot-toast |
 | 💀 **Loading Skeletons** | Shimmer loading states for data-heavy components |
 | 🎭 **Premium UI/UX** | Framer Motion animations, glassmorphism, custom cursor, Google Fonts |
+| 📩 **Newsletter** | Join the elite list for early access and drops |
 
 ---
 

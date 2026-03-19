@@ -15,13 +15,11 @@ export default {
       },
       colors: {
         brand: {
-          dark: "#050510", // Deep Space Purple-Black
-          surface: "#0f0c29", // Cyber Void
-          accent: "#ff0055", // Hot Pink/Red
-          gold: "#ffaa00",
-          success: "#39ff14", // Toxic Acid Green
-          cyan: "#00f0ff", // Outrun Cyan
-          purple: "#7000ff", // Electric Purple
+          dark: "#0a0a0a", // Stark Obsidian / True Black
+          surface: "#111111", // Raised dark surface
+          accent: "#e11d48", // Sports Red (Nike/Adidas style)
+          gold: "#f59e0b", // Refined subtle premium gold
+          success: "#10b981", // Clean success green
         },
       },
       backgroundImage: {

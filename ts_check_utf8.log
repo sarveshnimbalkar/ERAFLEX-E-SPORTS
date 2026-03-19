@@ -1,0 +1,14 @@
+﻿src/app/api/create-payment-intent/route.ts(5,3): error TS2322: Type '"2025-01-27-accommodations"' is not assignable to type '"2026-02-25.clover"'.
+src/app/checkout/page.tsx(99,13): error TS2322: Type '{ productId: string; name: string; team: string | undefined; image: string; price: number; quantity: number; }[]' is not assignable to type 'OrderItem[]'.
+  Type '{ productId: string; name: string; team: string | undefined; image: string; price: number; quantity: number; }' is not assignable to type 'OrderItem'.
+    Types of property 'team' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+src/app/page.tsx(13,10): error TS2459: Module '"@/store/useCartStore"' declares 'Product' locally, but it is not exported.
+src/app/shop/page.tsx(7,10): error TS2459: Module '"@/store/useCartStore"' declares 'Product' locally, but it is not exported.
+src/app/trending/page.tsx(8,10): error TS2459: Module '"@/store/useCartStore"' declares 'Product' locally, but it is not exported.
+src/components/shared/RecommendedProducts.tsx(5,10): error TS2459: Module '"@/store/useCartStore"' declares 'Product' locally, but it is not exported.
+src/components/shop/ProductCard.tsx(6,10): error TS2459: Module '"@/store/useCartStore"' declares 'Product' locally, but it is not exported.
+src/components/shop/ProductGrid.tsx(7,10): error TS2459: Module '"@/store/useCartStore"' declares 'Product' locally, but it is not exported.
+src/components/shop/ReviewSection.tsx(183,12): error TS2304: Cannot find name 'Shield'.
+src/components/shop/ReviewSection.tsx(223,22): error TS2304: Cannot find name 'X'.

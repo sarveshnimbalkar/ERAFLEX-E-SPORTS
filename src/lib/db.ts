@@ -134,12 +134,27 @@ export const reviewService = {
     productId: string;
     rating: number;
     comment: string;
+    images?: string[];
   }): Promise<string> {
     const docRef = await addDoc(collection(db, "reviews"), {
       ...data,
       createdAt: serverTimestamp(),
     });
     return docRef.id;
+  },
+
+  async isVerifiedBuyer(userId: string, productId: string): Promise<boolean> {
+    const q = query(
+      collection(db, "orders"),
+      where("userId", "==", userId),
+      where("paymentStatus", "==", "Paid")
+    );
+    const snap = await getDocs(q);
+    const orders = snap.docs.map(doc => doc.data() as Order);
+    
+    return orders.some(order => 
+      order.items.some(item => item.productId === productId)
+    );
   },
 
   async getProductReviews(productId: string): Promise<Review[]> {
@@ -178,6 +193,17 @@ export const reviewService = {
     if (reviews.length === 0) return { avg: 0, count: 0 };
     const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
     return { avg: sum / reviews.length, count: reviews.length };
+  },
+
+  async getRecentHighReviews(limitCount: number = 5): Promise<Review[]> {
+    const q = query(
+      collection(db, "reviews"),
+      where("rating", "==", 5),
+      orderBy("createdAt", "desc"),
+      limit(limitCount)
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as unknown as Review));
   },
 };
 

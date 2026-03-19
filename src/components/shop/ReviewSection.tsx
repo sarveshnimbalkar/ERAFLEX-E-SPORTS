@@ -2,12 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, Edit3, Trash2, Send } from "lucide-react";
+import { MessageSquare, Edit3, Trash2, Send, Shield, X } from "lucide-react";
 import { StarRating } from "@/components/ui/StarRating";
 import { reviewService } from "@/lib/db";
 import { useUserStore } from "@/store/useUserStore";
 import type { Review } from "@/types";
 import toast from "react-hot-toast";
+import { storage } from "@/lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { CheckCircle2, ChevronDown, Camera, Image as ImageIcon } from "lucide-react";
 
 interface ReviewSectionProps {
   productId: string;
@@ -23,6 +26,15 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRating, setEditRating] = useState(0);
   const [editComment, setEditComment] = useState("");
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [sortBy, setSortBy] = useState<"newest" | "highest" | "lowest">("newest");
+  const [isVerified, setIsVerified] = useState(false);
+
+  const sortedReviews = [...reviews].sort((a, b) => {
+    if (sortBy === "highest") return b.rating - a.rating;
+    if (sortBy === "lowest") return a.rating - b.rating;
+    return b.createdAt?.seconds - a.createdAt?.seconds;
+  });
 
   const avgRating =
     reviews.length > 0
@@ -31,7 +43,16 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
 
   useEffect(() => {
     loadReviews();
-  }, [productId]);
+    if (user) {
+      checkVerification();
+    }
+  }, [productId, user]);
+
+  const checkVerification = async () => {
+    if (!user) return;
+    const verified = await reviewService.isVerifiedBuyer(user.uid, productId);
+    setIsVerified(verified);
+  };
 
   const loadReviews = async () => {
     try {
@@ -53,19 +74,34 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
 
     setSubmitting(true);
     try {
-      await reviewService.addReview({
+      const imageUrls: string[] = [];
+      const uploadPromises = selectedImages.map(async (file) => {
+        const storageRef = ref(storage, `reviews/${productId}/${user.uid}_${Date.now()}_${file.name}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        return getDownloadURL(snapshot.ref);
+      });
+      
+      const uploadedUrls = await Promise.all(uploadPromises);
+      imageUrls.push(...uploadedUrls);
+
+      const reviewPayload: any = {
         userId: user.uid,
         userName: user.displayName || user.email || "Anonymous",
-        userPhoto: user.photoURL || undefined,
         productId,
         rating,
         comment: comment.trim(),
-      });
+        images: imageUrls,
+      };
+      if (user.photoURL) reviewPayload.userPhoto = user.photoURL;
+
+      await reviewService.addReview(reviewPayload);
       toast.success("Review submitted successfully!");
       setRating(0);
       setComment("");
+      setSelectedImages([]);
       await loadReviews();
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to submit review");
     } finally {
       setSubmitting(false);
@@ -119,6 +155,19 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
           </h3>
         </div>
         <div className="flex items-center gap-4">
+          <div className="relative group">
+            <select 
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="bg-black/40 border border-white/10 px-4 py-2 rounded-lg text-xs font-indian tracking-widest outline-none focus:border-brand-accent transition-all appearance-none pr-8 cursor-pointer"
+            >
+              <option value="newest">NEWEST FIRST</option>
+              <option value="highest">HIGHEST RATING</option>
+              <option value="lowest">LOWEST RATING</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
+          </div>
+          <div className="h-4 w-px bg-white/10 mx-2" />
           <StarRating rating={Math.round(avgRating)} readonly size="md" />
           <span className="font-display text-2xl text-brand-gold">
             {avgRating.toFixed(1)}
@@ -128,6 +177,8 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
           </span>
         </div>
       </div>
+
+
 
       {/* Review Form */}
       {user && (
@@ -148,8 +199,45 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
             onChange={(e) => setComment(e.target.value)}
             placeholder="Share your experience with this product..."
             rows={3}
-            className="w-full bg-black/40 border border-white/10 p-4 rounded-xl outline-none focus:border-brand-accent transition-all duration-300 font-indian tracking-wide text-sm resize-none"
+            className="w-full bg-black/40 border border-white/10 p-4 rounded-xl outline-none focus:border-brand-accent transition-all duration-300 font-indian tracking-wide text-sm resize-none mb-4"
           />
+
+          {/* Image Upload Area */}
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-4">
+              {selectedImages.map((file, idx) => (
+                <div key={idx} className="relative w-20 h-20 rounded-xl overflow-hidden group">
+                  <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" alt="" />
+                  <button 
+                    type="button"
+                    onClick={() => setSelectedImages(prev => prev.filter((_, i) => i !== idx))}
+                    className="absolute inset-0 bg-brand-accent/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                  >
+                    <X className="w-5 h-5 text-white" />
+                  </button>
+                </div>
+              ))}
+              {selectedImages.length < 3 && (
+                <label className="w-20 h-20 rounded-xl border border-white/10 border-dashed flex flex-col items-center justify-center gap-1 hover:border-brand-accent transition-colors cursor-pointer bg-black/20 group">
+                  <Camera className="w-5 h-5 text-gray-500 group-hover:text-brand-accent transition-colors" />
+                  <span className="text-[8px] font-indian text-gray-600 uppercase">Add Photo</span>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    hidden 
+                    multiple
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        const files = Array.from(e.target.files);
+                        setSelectedImages(prev => [...prev, ...files].slice(0, 3));
+                      }
+                    }}
+                  />
+                </label>
+              )}
+            </div>
+            <p className="text-[9px] text-gray-600 font-indian tracking-widest uppercase">Max 3 photos • JPEG/PNG</p>
+          </div>
           <div className="flex justify-end mt-4">
             <button
               type="submit"
@@ -181,7 +269,7 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
           </div>
         ) : (
           <AnimatePresence>
-            {reviews.map((review, i) => (
+            {sortedReviews.map((review, i) => (
               <motion.div
                 key={review.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -221,7 +309,10 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
                           {review.userName?.[0]?.toUpperCase() || "?"}
                         </div>
                         <div>
-                          <p className="font-bold text-sm">{review.userName}</p>
+                          <p className="font-bold text-sm flex items-center gap-2">
+                            {review.userName}
+                            <CheckCircle2 className="w-3.5 h-3.5 text-brand-success" />
+                          </p>
                           <p className="text-[10px] text-gray-500 font-indian tracking-widest">
                             {formatDate(review.createdAt)}
                           </p>
@@ -251,9 +342,20 @@ export const ReviewSection = ({ productId }: ReviewSectionProps) => {
                         )}
                       </div>
                     </div>
-                    <p className="text-gray-300 text-sm font-indian tracking-wide leading-relaxed">
+                    <p className="text-gray-300 text-sm font-indian tracking-wide leading-relaxed mb-4">
                       {review.comment}
                     </p>
+
+                    {/* Review Images */}
+                    {review.images && review.images.length > 0 && (
+                      <div className="flex flex-wrap gap-3">
+                        {review.images.map((img, idx) => (
+                          <div key={idx} className="w-24 h-24 rounded-xl overflow-hidden border border-white/10 hover:border-brand-accent transition-colors cursor-zoom-in">
+                            <img src={img} className="w-full h-full object-cover" alt={`Review ${idx + 1}`} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </>
                 )}
               </motion.div>

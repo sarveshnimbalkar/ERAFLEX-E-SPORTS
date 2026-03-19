@@ -1,20 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-export interface Product {
-    id: string;
-    name: string;
-    team: string;
-    price: number;
-    image: string;
-    category: 'Football' | 'Cricket' | 'Basketball';
-    brand?: string;
-    rating?: number;
-}
-
-interface CartItem extends Product {
-    quantity: number;
-}
+import type { Product, CartItem } from '@/types';
 
 interface CartStore {
     items: CartItem[];

@@ -2,14 +2,18 @@
 export interface Product {
   id: string;
   name: string;
-  team: string;
   price: number;
   image: string;
-  category: 'Football' | 'Cricket' | 'Basketball';
-  brand?: string;
+  category: "football" | "basketball" | "cricket" | "lifestyle";
+  sport: "football" | "basketball" | "cricket";
+  description: string;
+  team?: string;
+  stock: number;
   rating?: number;
-  stock?: number;
-  description?: string;
+  reviews?: number;
+  sizes?: string[];
+  colors?: string[];
+  features?: string[];
 }
 
 // ─── Cart ─────────────────────────────────────────────
@@ -40,7 +44,7 @@ export type PaymentStatus = 'Paid' | 'Pending' | 'Failed' | 'Refunded';
 export interface OrderItem {
   productId: string;
   name: string;
-  team: string;
+  team?: string;
   image: string;
   price: number;
   quantity: number;
@@ -82,6 +86,7 @@ export interface Review {
   productId: string;
   rating: number;
   comment: string;
+  images?: string[];
   createdAt: any;
   updatedAt?: any;
 }

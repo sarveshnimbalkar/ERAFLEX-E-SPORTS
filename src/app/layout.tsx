@@ -27,8 +27,12 @@ import { ChatWidget } from "@/components/shared/ChatWidget";
 import { ToastProvider } from "@/components/shared/ToastProvider";
 
 export const metadata: Metadata = {
-  title: "ERAFLEX | Elite Football Athletics",
-  description: "Premium football jerseys and performance gear for the elite.",
+  title: {
+    template: "%s | ERAFLEX",
+    default: "ERAFLEX | Premium Sports & Performance Gear",
+  },
+  description: "Shop elite sports apparel, bespoke football jerseys, and performance athletic gear. Custom 3D design and premium sports merchandise.",
+  keywords: ["sports gear", "football jerseys", "athletic wear", "premium sports apparel", "ERAFLEX"],
 };
 
 export default function RootLayout({

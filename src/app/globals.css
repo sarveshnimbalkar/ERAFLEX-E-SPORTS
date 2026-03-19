@@ -2,13 +2,7 @@
 
 body {
   color: #ffffff;
-  background-color: #050510;
-  background-image: 
-    radial-gradient(600px 300px at 15% 50%, rgba(112, 0, 255, 0.12), transparent 25%),
-    radial-gradient(600px 300px at 85% 30%, rgba(0, 200, 255, 0.12), transparent 25%),
-    radial-gradient(400px at 50% 100%, rgba(255, 0, 85, 0.08), transparent 40%);
-  background-size: cover;
-  background-attachment: fixed;
+  background-color: #0a0a0a;
   overflow-x: hidden;
   contain: layout style paint;
   will-change: scroll-position;
@@ -25,14 +19,14 @@ body {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #050505;
+  background: #0a0a0a;
 }
 ::-webkit-scrollbar-thumb {
-  background: #ff0033;
-  border-radius: 10px;
+  background: #e11d48;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #ff3366;
+  background: #be123c;
 }
 
 /* ─── No Scrollbar Utility ─── */
@@ -71,6 +65,21 @@ body {
   transition: width 0.3s, height 0.3s, background-color 0.3s, opacity 0.3s;
 }
 
+/* ─── Premium E-Commerce Micro-interactions ─── */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+}
+.hover-scale {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
 /* ─── Smooth Animations ─── */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(8px); }
@@ -87,11 +96,6 @@ body {
   100% { background-position: 200% 0; }
 }
 
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 85, 0.2); }
-  50% { box-shadow: 0 0 40px rgba(255, 0, 85, 0.4); }
-}
-
 .animate-fade-in {
   animation: fade-in 0.5s ease-out forwards;
 }
@@ -106,10 +110,6 @@ body {
   animation: shimmer 2s infinite;
 }
 
-.animate-glow {
-  animation: glow-pulse 3s ease-in-out infinite;
-}
-
 /* ─── Focus styles ─── */
 input:focus,
 select:focus,
@@ -119,7 +119,7 @@ textarea:focus {
 
 /* ─── Selection ─── */
 ::selection {
-  background: rgba(255, 0, 85, 0.3);
+  background: rgba(225, 29, 72, 0.3);
   color: #ffffff;
 }
 

@@ -43,7 +43,7 @@ export const Header = () => {
     >
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 md:gap-3 group flex-shrink-0">
-        <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-accent flex items-center justify-center font-display text-lg md:text-2xl italic font-black transform group-hover:rotate-12 transition-transform duration-300">
+        <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-accent flex items-center justify-center font-display text-lg md:text-2xl font-black transform group-hover:rotate-12 transition-transform duration-300">
           E
         </div>
         <span className="font-display text-xl md:text-3xl tracking-wider">
@@ -127,7 +127,7 @@ export const Header = () => {
                   <Link
                     href={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="font-display text-3xl md:text-4xl italic hover:text-brand-accent transition-colors duration-300"
+                    className="font-display text-3xl md:text-4xl hover:text-brand-accent transition-colors duration-300"
                   >
                     {link.name}
                   </Link>
@@ -142,7 +142,7 @@ export const Header = () => {
                 <Link
                   href={user ? "/dashboard" : "/auth"}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="font-display text-2xl italic text-brand-accent hover:text-white transition-colors"
+                  className="font-display text-2xl text-brand-accent hover:text-white transition-colors"
                 >
                   {user ? "Dashboard" : "Sign In"}
                 </Link>

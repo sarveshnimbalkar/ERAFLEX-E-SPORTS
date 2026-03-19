@@ -1,0 +1,19 @@
+﻿src/app/page.tsx(16,118): error TS2820: Type '"Football"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"football"'?
+src/app/page.tsx(17,115): error TS2820: Type '"Football"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"football"'?
+src/app/page.tsx(18,107): error TS2820: Type '"Basketball"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"basketball"'?
+src/app/page.tsx(19,110): error TS2820: Type '"Cricket"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"cricket"'?
+src/app/shop/page.tsx(17,5): error TS2820: Type '"Football"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"football"'?
+src/app/shop/page.tsx(26,5): error TS2820: Type '"Football"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"football"'?
+src/app/shop/page.tsx(35,5): error TS2820: Type '"Cricket"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"cricket"'?
+src/app/shop/page.tsx(44,5): error TS2820: Type '"Basketball"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"basketball"'?
+src/app/shop/page.tsx(53,5): error TS2820: Type '"Football"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"football"'?
+src/app/shop/page.tsx(62,5): error TS2820: Type '"Football"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"football"'?
+src/app/shop/page.tsx(71,5): error TS2820: Type '"Football"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"football"'?
+src/app/shop/page.tsx(80,5): error TS2820: Type '"Football"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"football"'?
+src/app/trending/page.tsx(12,161): error TS2820: Type '"Football"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"football"'?
+src/app/trending/page.tsx(13,155): error TS2820: Type '"Basketball"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"basketball"'?
+src/app/trending/page.tsx(14,159): error TS2820: Type '"Cricket"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"cricket"'?
+src/app/trending/page.tsx(15,160): error TS2820: Type '"Football"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"football"'?
+src/app/trending/page.tsx(16,155): error TS2820: Type '"Football"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"football"'?
+src/app/trending/page.tsx(17,160): error TS2820: Type '"Basketball"' is not assignable to type '"football" | "basketball" | "cricket" | "lifestyle"'. Did you mean '"basketball"'?
+src/components/shop/ProductGrid.tsx(26,11): error TS18048: 'p.team' is possibly 'undefined'.

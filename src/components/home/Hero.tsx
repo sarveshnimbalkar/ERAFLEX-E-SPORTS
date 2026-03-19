@@ -41,11 +41,11 @@ export const Hero = () => {
     scene.add(particlesMesh);
 
     // Digital grid ground
-    const gridHelper = new THREE.GridHelper(100, 100, 0xff0033, 0xffffff);
+    const gridHelper = new THREE.GridHelper(100, 100, 0xe11d48, 0xffffff);
     gridHelper.position.y = -3;
     const gridMaterial = gridHelper.material as THREE.Material;
     gridMaterial.transparent = true;
-    gridMaterial.opacity = 0.15;
+    gridMaterial.opacity = 0.1;
     scene.add(gridHelper);
 
     // Floating geometry objects
@@ -59,7 +59,7 @@ export const Hero = () => {
     group.add(mesh1);
 
     const geo2 = new THREE.OctahedronGeometry(2, 0);
-    const mat2 = new THREE.MeshBasicMaterial({ color: 0x00ffcc, wireframe: true, transparent: true, opacity: 0.15 });
+    const mat2 = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.1 });
     const mesh2 = new THREE.Mesh(geo2, mat2);
     mesh2.position.set(-5, 2, -4);
     group.add(mesh2);
@@ -141,11 +141,11 @@ export const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="font-display text-[15vw] md:text-[8rem] leading-[0.85] italic mb-6 drop-shadow-[0_0_40px_rgba(112,0,255,0.3)] tracking-tighter"
+          className="font-display text-[15vw] md:text-[8rem] leading-[0.85] mb-6 tracking-tighter"
         >
-          BREAK THE <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan via-brand-success to-brand-accent">
-            SIMULATION
+          ENGINEERED <br />
+          <span className="text-brand-accent">
+            FOR GREATNESS
           </span>
         </motion.h1>
 
@@ -153,10 +153,10 @@ export const Hero = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.5 }}
-          className="font-indian text-lg md:text-xl tracking-[0.5em] mb-12 text-white/90 uppercase max-w-2xl border-l-[3px] border-brand-accent pl-6 py-2 bg-gradient-to-r from-brand-accent/20 to-transparent backdrop-blur-sm"
+          className="font-indian text-lg md:text-xl tracking-[0.3em] mb-12 text-white/80 uppercase max-w-2xl border-l-4 border-brand-accent pl-6 py-2"
         >
-          Hyper-engineered performance gear for the elite generation. 
-          Defy physics.
+          Premium performance gear for the elite athlete. 
+          Defy limits.
         </motion.p>
 
         <motion.div
@@ -165,11 +165,11 @@ export const Hero = () => {
           transition={{ duration: 0.8, delay: 0.7 }}
           className="flex flex-col sm:flex-row gap-6 justify-start w-full pointer-events-auto"
         >
-          <button className="bg-gradient-to-r from-brand-accent to-brand-purple px-12 py-5 font-black text-xl hover:from-white hover:to-white hover:text-black transition-all duration-500 shadow-xl group hover-trigger flex items-center justify-center gap-3">
-            ENTER THE DROP
-            <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" />
+          <button className="bg-brand-accent text-white px-12 py-5 font-black text-lg md:text-xl hover:bg-white hover:text-black transition-all duration-300 shadow-xl group hover-lift flex items-center justify-center gap-3 uppercase tracking-wider">
+            SHOP NOW
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
           </button>
-          <button className="border border-brand-cyan/30 px-10 py-5 font-black text-xl hover:border-brand-cyan hover:bg-brand-cyan/10 hover:text-brand-cyan transition-all duration-300 hover-trigger backdrop-blur-md">
+          <button className="border-2 border-white px-10 py-5 font-black text-lg md:text-xl hover:bg-white hover:text-black transition-all duration-300 hover-lift uppercase tracking-wider">
             VIEW CAMPAIGN
           </button>
         </motion.div>

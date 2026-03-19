@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X } from "lucide-react";
 import { ProductCard } from "./ProductCard";
-import { Product } from "@/store/useCartStore";
+import type { Product } from "@/types";
 
 interface ProductGridProps {
   initialProducts: Product[];
@@ -16,14 +16,14 @@ export const ProductGrid = ({ initialProducts }: ProductGridProps) => {
   const [maxPrice] = useState<number>(10000);
   const [sortBy, setSortBy] = useState<string>("default");
 
-  const categories = ["all", "Football", "Cricket", "Basketball"];
+  const categories = ["all", "football", "cricket", "basketball"];
 
   const filteredProducts = useMemo(() => {
     return initialProducts
       .filter((p) => {
         const matchesSearch =
           p.name.toLowerCase().includes(search.toLowerCase()) ||
-          p.team.toLowerCase().includes(search.toLowerCase());
+          (p.team?.toLowerCase().includes(search.toLowerCase()) ?? false);
         const matchesCategory =
           activeCategory === "all" || p.category === activeCategory;
         const matchesPrice = p.price <= maxPrice;

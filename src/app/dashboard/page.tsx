@@ -7,6 +7,8 @@ import { Footer } from "@/components/shared/Footer";
 import { ProtectedRoute } from "@/components/shared/ProtectedRoute";
 import { useUserStore } from "@/store/useUserStore";
 import { orderService, reviewService, wishlistService, userService } from "@/lib/db";
+import { db } from "@/lib/firebase";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import type { Order, Review, UserProfile } from "@/types";
 import { StarRating } from "@/components/ui/StarRating";
 import { Skeleton, ProfileSkeleton } from "@/components/ui/Skeleton";
@@ -64,12 +66,37 @@ export default function Dashboard() {
     if (!user?.uid) return;
     setLoading(true);
     try {
-      const [profileData, ordersData, reviewsData, wishlistData] = await Promise.all([
-        userService.getProfile(user.uid),
+      let profileData = await userService.getProfile(user.uid);
+      
+      // Auto-create missing profile if user made it to dashboard without a Firestore doc
+      if (!profileData) {
+        toast.loading("Rebuilding your profile...", { id: 'profile-rebuild' });
+        try {
+          const userDocRef = doc(db, "users", user.uid);
+          await setDoc(userDocRef, {
+            uid: user.uid,
+            name: user.displayName || user.email?.split('@')[0] || "User",
+            email: user.email,
+            createdAt: serverTimestamp(),
+            role: "user",
+            termsAccepted: true,
+            acceptedTimestamp: serverTimestamp()
+          }, { merge: true });
+          
+          // Fetch it again to display
+          profileData = await userService.getProfile(user.uid);
+          toast.success("Profile restored successfully!", { id: 'profile-rebuild' });
+        } catch (error: any) {
+          toast.error(`Database Error: ${error.message}`, { id: 'profile-rebuild', duration: 8000 });
+        }
+      }
+
+      const [ordersData, reviewsData, wishlistData] = await Promise.all([
         orderService.getUserOrders(user.uid),
         reviewService.getUserReviews(user.uid),
         wishlistService.getWishlist(user.uid),
       ]);
+
       setProfile(profileData);
       setOrders(ordersData);
       setReviews(reviewsData);
@@ -83,8 +110,9 @@ export default function Dashboard() {
         setEditState(profileData.state || "");
         setEditPincode(profileData.pincode || "");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to load dashboard data:", err);
+      toast.error(`Failed to load data: ${err.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

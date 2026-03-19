@@ -17,6 +17,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import StripePaymentForm from "@/components/checkout/StripePaymentForm";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCartStore();
@@ -27,6 +32,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState("");
+  const [clientSecret, setClientSecret] = useState("");
 
   // Shipping form
   const [shipping, setShipping] = useState<ShippingAddress>({
@@ -65,9 +71,27 @@ export default function CheckoutPage() {
       return;
     }
     setStep(2);
+    // Initialize Stripe Payment Intent
+    if (paymentMethod === "stripe") {
+      initStripe();
+    }
   };
 
-  const handlePlaceOrder = async () => {
+  const initStripe = async () => {
+    try {
+      const res = await fetch("/api/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: grandTotal }),
+      });
+      const data = await res.json();
+      setClientSecret(data.clientSecret);
+    } catch (err) {
+      toast.error("Failed to initialize payment system");
+    }
+  };
+
+  const handlePlaceOrder = async (stripePaymentId?: string) => {
     if (!user) return toast.error("Please login");
     setLoading(true);
 
@@ -92,7 +116,7 @@ export default function CheckoutPage() {
         total: grandTotal,
         paymentMethod,
         paymentStatus: paymentMethod === "cod" ? "Pending" : "Paid",
-        stripePaymentId: paymentMethod === "stripe" ? `pi_sim_${Date.now()}` : undefined,
+        stripePaymentId: stripePaymentId || (paymentMethod === "stripe" ? `pi_sim_${Date.now()}` : undefined),
       });
 
       setOrderId(newOrderId);
@@ -116,7 +140,7 @@ export default function CheckoutPage() {
         <h1 className="font-display text-4xl italic uppercase mb-4 text-center">Your bag is empty</h1>
         <Link
           href="/shop"
-          className="bg-brand-accent px-8 py-4 font-bold hover:bg-white hover:text-black transition-all"
+          className="bg-brand-accent px-8 py-4 font-black tracking-widest uppercase hover:bg-black hover:text-white transition-all rounded-md text-sm md:text-base"
         >
           GO TO SHOP
         </Link>
@@ -144,7 +168,7 @@ export default function CheckoutPage() {
             >
               <CheckCircle className="w-12 h-12 text-brand-success" />
             </motion.div>
-            <h1 className="font-display text-4xl md:text-5xl italic uppercase tracking-tighter">
+            <h1 className="font-display text-4xl md:text-5xl uppercase tracking-tighter">
               ORDER <span className="text-brand-success">CONFIRMED</span>
             </h1>
             <p className="font-indian text-gray-400 tracking-[0.2em] uppercase text-sm">
@@ -312,7 +336,7 @@ export default function CheckoutPage() {
 
                     <button
                       onClick={handleContinueToPayment}
-                      className="mt-8 w-full bg-brand-accent py-5 font-black text-xl hover:bg-white hover:text-black transition-all duration-500 flex items-center justify-center gap-3"
+                      className="mt-8 w-full bg-brand-accent py-5 font-black text-2xl tracking-widest uppercase rounded-md hover:bg-black hover:text-white transition-all duration-300 flex items-center justify-center gap-3"
                     >
                       CONTINUE TO PAYMENT
                       <ArrowRight className="w-6 h-6" />
@@ -358,6 +382,7 @@ export default function CheckoutPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                         {/* Stripe Option */}
                         <button
+                          type="button"
                           onClick={() => setPaymentMethod("stripe")}
                           className={cn(
                             "p-6 rounded-2xl border-2 transition-all duration-300 text-left group",
@@ -366,7 +391,7 @@ export default function CheckoutPage() {
                               : "border-white/10 hover:border-white/20"
                           )}
                         >
-                          <div className="flex items-center gap-3 mb-3">
+                          <div className="flex items-center gap-3">
                             <div className={cn(
                               "w-10 h-10 rounded-xl flex items-center justify-center",
                               paymentMethod === "stripe" ? "bg-brand-accent" : "bg-white/5"
@@ -378,42 +403,11 @@ export default function CheckoutPage() {
                               <p className="text-[10px] text-gray-500 font-indian tracking-widest">Via Stripe Secure</p>
                             </div>
                           </div>
-                          {paymentMethod === "stripe" && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              className="space-y-4 mt-4 pt-4 border-t border-white/10"
-                            >
-                              <div className="space-y-2">
-                                <label className="text-[10px] font-indian tracking-widest text-gray-500 uppercase">Card Number</label>
-                                <input
-                                  placeholder="4242 4242 4242 4242"
-                                  className="w-full bg-black/40 border border-white/10 p-3 rounded-xl outline-none focus:border-brand-accent text-sm"
-                                />
-                              </div>
-                              <div className="grid grid-cols-2 gap-3">
-                                <div className="space-y-2">
-                                  <label className="text-[10px] font-indian tracking-widest text-gray-500 uppercase">Expiry</label>
-                                  <input
-                                    placeholder="MM/YY"
-                                    className="w-full bg-black/40 border border-white/10 p-3 rounded-xl outline-none focus:border-brand-accent text-sm"
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <label className="text-[10px] font-indian tracking-widest text-gray-500 uppercase">CVV</label>
-                                  <input
-                                    placeholder="123"
-                                    type="password"
-                                    className="w-full bg-black/40 border border-white/10 p-3 rounded-xl outline-none focus:border-brand-accent text-sm"
-                                  />
-                                </div>
-                              </div>
-                            </motion.div>
-                          )}
                         </button>
 
                         {/* COD Option */}
                         <button
+                          type="button"
                           onClick={() => setPaymentMethod("cod")}
                           className={cn(
                             "p-6 rounded-2xl border-2 transition-all duration-300 text-left group",
@@ -422,7 +416,7 @@ export default function CheckoutPage() {
                               : "border-white/10 hover:border-white/20"
                           )}
                         >
-                          <div className="flex items-center gap-3 mb-3">
+                          <div className="flex items-center gap-3">
                             <div className={cn(
                               "w-10 h-10 rounded-xl flex items-center justify-center",
                               paymentMethod === "cod" ? "bg-brand-gold" : "bg-white/5"
@@ -434,40 +428,61 @@ export default function CheckoutPage() {
                               <p className="text-[10px] text-gray-500 font-indian tracking-widest">Pay when you receive</p>
                             </div>
                           </div>
-                          {paymentMethod === "cod" && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              className="mt-4 pt-4 border-t border-white/10"
-                            >
-                              <div className="bg-brand-gold/10 border border-brand-gold/30 rounded-xl p-4">
+                        </button>
+                      </div>
+
+                      <div className="space-y-6">
+                        {/* Stripe Elements */}
+                        {paymentMethod === "stripe" && (
+                          <div className="space-y-6">
+                            {clientSecret ? (
+                              <Elements 
+                                stripe={stripePromise} 
+                                options={{ 
+                                  clientSecret,
+                                  appearance: { 
+                                    theme: 'night',
+                                    variables: { colorPrimary: '#FF0055' } 
+                                  } 
+                                }}
+                              >
+                                <StripePaymentForm amount={grandTotal} onSuccess={handlePlaceOrder} />
+                              </Elements>
+                            ) : (
+                              <div className="flex flex-col items-center justify-center py-12 gap-4 bg-black/20 rounded-2xl border border-white/5">
+                                <div className="w-10 h-10 border-4 border-brand-accent/30 border-t-brand-accent rounded-full animate-spin" />
+                                <p className="text-[10px] font-indian tracking-widest text-gray-500 uppercase">Connecting to Stripe Secure...</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* COD Button */}
+                        {paymentMethod === "cod" && (
+                          <div className="space-y-4">
+                             <div className="bg-brand-gold/10 border border-brand-gold/30 rounded-xl p-4 mb-4">
                                 <p className="text-xs text-brand-gold font-indian tracking-widest leading-relaxed">
                                   💵 Pay ₹{grandTotal.toLocaleString()} in cash upon delivery.
                                   Our delivery partner will collect the payment.
                                 </p>
-                              </div>
-                            </motion.div>
-                          )}
-                        </button>
-                      </div>
-
-                      <button
-                        onClick={handlePlaceOrder}
-                        disabled={loading}
-                        className="w-full bg-brand-accent py-5 font-black text-xl hover:bg-white hover:text-black transition-all duration-500 shadow-[0_0_30px_rgba(255,0,51,0.3)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {loading ? (
-                          <>
-                            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            PROCESSING...
-                          </>
-                        ) : (
-                          <>
-                            <Lock className="w-5 h-5" />
-                            {paymentMethod === "cod" ? "PLACE ORDER (COD)" : "PAY & PLACE ORDER"}
-                          </>
+                             </div>
+                             <button
+                                onClick={() => handlePlaceOrder()}
+                                disabled={loading}
+                                className="w-full bg-brand-gold py-5 font-black text-2xl tracking-widest text-black rounded-md hover:bg-white transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed uppercase"
+                              >
+                                {loading ? (
+                                  <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                  <>
+                                    <Banknote className="w-6 h-6" />
+                                    CONFIRM COD ORDER (₹{grandTotal.toLocaleString()})
+                                  </>
+                                )}
+                              </button>
+                          </div>
                         )}
-                      </button>
+                      </div>
                     </div>
                   </motion.div>
                 )}

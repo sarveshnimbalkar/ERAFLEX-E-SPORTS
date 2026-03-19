@@ -5,16 +5,16 @@ import { Header } from "@/components/shared/Header";
 import { Footer } from "@/components/shared/Footer";
 import { ProductGrid } from "@/components/shop/ProductGrid";
 import { ReviewSection } from "@/components/shop/ReviewSection";
-import { Product } from "@/store/useCartStore";
+import type { Product } from "@/types";
 import { Flame } from "lucide-react";
 
 const trendingProducts: Product[] = [
-  { id: "fb-1", name: "Real Madrid Home Kit", team: "Real Madrid CF", price: 4999, image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600", category: "Football", rating: 5 },
-  { id: "bk-1", name: "Lakers Icon Edition", team: "LA Lakers", price: 5999, image: "https://images.unsplash.com/photo-1515523110800-9415d13b84a8?w=600", category: "Basketball", rating: 5 },
-  { id: "cr-1", name: "India World Cup Jersey", team: "Team India", price: 2999, image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=600", category: "Cricket", rating: 5 },
-  { id: "fb-3", name: "FC Barcelona Home Kit", team: "FC Barcelona", price: 4799, image: "https://images.unsplash.com/photo-1431324155629-1a6eda1eedfa?w=600", category: "Football", rating: 4 },
-  { id: "fb-4", name: "Manchester City Away", team: "Man City", price: 5499, image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600", category: "Football", rating: 5 },
-  { id: "bk-2", name: "Bulls Statement Edition", team: "Chicago Bulls", price: 6199, image: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600", category: "Basketball", rating: 5 },
+  { id: "fb-1", name: "Real Madrid Home Kit", team: "Real Madrid CF", price: 4999, image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600", category: "football", sport: "football", description: "Royal white performance kit", stock: 100, rating: 5 },
+  { id: "bk-1", name: "Lakers Icon Edition", team: "LA Lakers", price: 5999, image: "https://images.unsplash.com/photo-1515523110800-9415d13b84a8?w=600", category: "basketball", sport: "basketball", description: "Iconic purple and gold", stock: 40, rating: 5 },
+  { id: "cr-1", name: "India World Cup Jersey", team: "Team India", price: 2999, image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=600", category: "cricket", sport: "cricket", description: "Official India world cup edition", stock: 200, rating: 5 },
+  { id: "fb-3", name: "FC Barcelona Home Kit", team: "FC Barcelona", price: 4799, image: "https://images.unsplash.com/photo-1431324155629-1a6eda1eedfa?w=600", category: "football", sport: "football", description: "Blaugrana pride", stock: 70, rating: 4 },
+  { id: "fb-4", name: "Manchester City Away", team: "Man City", price: 5499, image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600", category: "football", sport: "football", description: "City blue dominance", stock: 80, rating: 5 },
+  { id: "bk-2", name: "Bulls Statement Edition", team: "Chicago Bulls", price: 6199, image: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600", category: "basketball", sport: "basketball", description: "Bulls legendary statement", stock: 30, rating: 5 },
 ];
 
 export default function TrendingPage() {

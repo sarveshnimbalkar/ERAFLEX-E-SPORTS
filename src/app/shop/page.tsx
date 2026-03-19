@@ -4,7 +4,7 @@ import { Header } from "@/components/shared/Header";
 import { Footer } from "@/components/shared/Footer";
 import { ProductGrid } from "@/components/shop/ProductGrid";
 import { ReviewSection } from "@/components/shop/ReviewSection";
-import { Product } from "@/store/useCartStore";
+import type { Product } from "@/types";
 
 // Static data for now, would be fetched from Firestore in a later phase
 const initialProducts: Product[] = [
@@ -14,7 +14,10 @@ const initialProducts: Product[] = [
     team: "Real Madrid CF",
     price: 4999,
     image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600",
-    category: "Football",
+    category: "football",
+    sport: "football",
+    description: "Royal white performance kit",
+    stock: 100,
     rating: 5,
   },
   {
@@ -23,7 +26,10 @@ const initialProducts: Product[] = [
     team: "Manchester City",
     price: 4499,
     image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600",
-    category: "Football",
+    category: "football",
+    sport: "football",
+    description: "City blue dominance",
+    stock: 80,
     rating: 4,
   },
   {
@@ -32,7 +38,10 @@ const initialProducts: Product[] = [
     team: "Team India",
     price: 2999,
     image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=600",
-    category: "Cricket",
+    category: "cricket",
+    sport: "cricket",
+    description: "Official India world cup edition",
+    stock: 200,
     rating: 5,
   },
   {
@@ -41,7 +50,10 @@ const initialProducts: Product[] = [
     team: "LA Lakers",
     price: 5999,
     image: "https://images.unsplash.com/photo-1515523110800-9415d13b84a8?w=600",
-    category: "Basketball",
+    category: "basketball",
+    sport: "basketball",
+    description: "Iconic purple and gold",
+    stock: 40,
     rating: 5,
   },
   {
@@ -50,7 +62,10 @@ const initialProducts: Product[] = [
     team: "FC Barcelona",
     price: 4799,
     image: "https://images.unsplash.com/photo-1431324155629-1a6eda1eedfa?w=600",
-    category: "Football",
+    category: "football",
+    sport: "football",
+    description: "Blaugrana pride",
+    stock: 70,
     rating: 4,
   },
   {
@@ -59,7 +74,10 @@ const initialProducts: Product[] = [
     team: "Arsenal FC",
     price: 4299,
     image: "https://images.unsplash.com/photo-1519315901367-f34ff9154487?w=600",
-    category: "Football",
+    category: "football",
+    sport: "football",
+    description: "Gunners elite threads",
+    stock: 90,
     rating: 5,
   },
   {
@@ -68,7 +86,10 @@ const initialProducts: Product[] = [
     team: "Paris Saint-Germain",
     price: 5299,
     image: "https://images.unsplash.com/photo-1522770179533-24471fcdba45?w=600",
-    category: "Football",
+    category: "football",
+    sport: "football",
+    description: "Parisian elegance",
+    stock: 60,
     rating: 4,
   },
   {
@@ -77,7 +98,10 @@ const initialProducts: Product[] = [
     team: "AC Milan",
     price: 3999,
     image: "https://images.unsplash.com/photo-1541534741688-6078c64b5913?w=600",
-    category: "Football",
+    category: "football",
+    sport: "football",
+    description: "Rossoneri tradition",
+    stock: 50,
     rating: 5,
   },
 ];
@@ -89,7 +113,7 @@ export default function Shop() {
       
       <div className="max-w-7xl mx-auto space-y-16">
         <header className="space-y-3">
-          <h1 className="font-display text-5xl md:text-6xl lg:text-8xl italic uppercase tracking-tighter">
+          <h1 className="font-display text-5xl md:text-6xl lg:text-8xl uppercase tracking-tighter">
             THE <span className="text-brand-accent">COLLECTIONS</span>
           </h1>
           <p className="font-indian text-gray-500 tracking-[0.3em] md:tracking-[0.4em] uppercase text-xs md:text-sm">
@@ -100,7 +124,7 @@ export default function Shop() {
         <ProductGrid initialProducts={initialProducts} />
 
         {/* Review Section */}
-        <div className="bg-brand-surface p-6 md:p-10 rounded-3xl border border-white/5">
+        <div className="bg-brand-surface p-6 md:p-10 rounded-md border border-white/5 shadow-xl">
           <ReviewSection productId="shop-general" />
         </div>
       </div>

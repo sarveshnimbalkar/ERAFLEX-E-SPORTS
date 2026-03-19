@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ProductCard } from "@/components/shop/ProductCard";
-import { Product } from "@/store/useCartStore";
+import type { Product } from "@/types";
 import { Sparkles } from "lucide-react";
 
 interface RecommendedProductsProps {

@@ -10,12 +10,26 @@ import {
   signInWithPopup
 } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/shared/Header";
 import { Footer } from "@/components/shared/Footer";
-import { Mail, Lock, User, ArrowRight, Github } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, Github, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TermsModal } from "@/components/auth/TermsModal";
+
+const getErrorMessage = (err: any) => {
+  if (err.code === "auth/email-already-in-use") return "This email is already registered. Please sign in instead.";
+  if (err.code === "auth/invalid-credential" || err.code === "auth/user-not-found" || err.code === "auth/wrong-password") return "Invalid email or password.";
+  if (err.code === "auth/weak-password") return "Password should be at least 6 characters.";
+  if (err.code === "auth/invalid-email") return "Please enter a valid email address.";
+  if (err.code === "auth/popup-closed-by-user") return "Sign in popup was closed.";
+  
+  if (err.message) {
+    return err.message.replace(/Firebase:\s*/i, "").replace(/\s*\([^)]+\)\.?/, "");
+  }
+  return "An error occurred during authentication.";
+};
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -24,10 +38,18 @@ export default function AuthPage() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showTerms, setShowTerms] = useState(false);
   const router = useRouter();
 
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAuth = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    
+    // For registration, we always show terms first
+    if (mode === "register" && !showTerms) {
+      setShowTerms(true);
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -42,14 +64,32 @@ export default function AuthPage() {
           name,
           email,
           createdAt: serverTimestamp(),
-          role: "user"
+          role: "user",
+          termsAccepted: true,
+          acceptedTimestamp: serverTimestamp()
         });
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        
+        // Check if user doc exists, and create it if missing (handles partial registrations or manually created auth users)
+        const userDocRef = doc(db, "users", userCredential.user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        
+        if (!userDocSnap.exists()) {
+          await setDoc(userDocRef, {
+            uid: userCredential.user.uid,
+            name: userCredential.user.displayName || email.split('@')[0],
+            email: userCredential.user.email || email,
+            createdAt: serverTimestamp(),
+            role: "user",
+            termsAccepted: true,
+            acceptedTimestamp: serverTimestamp()
+          });
+        }
       }
       router.push("/dashboard");
     } catch (err: any) {
-      setError(err.message || "An error occurred during authentication.");
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -64,11 +104,13 @@ export default function AuthPage() {
         name: result.user.displayName,
         email: result.user.email,
         createdAt: serverTimestamp(),
-        role: "user"
+        role: "user",
+        termsAccepted: true, // Google sign-in also implies consent or we could show modal
+        acceptedTimestamp: serverTimestamp()
       }, { merge: true });
       router.push("/dashboard");
     } catch (err: any) {
-      setError(err.message);
+      setError(getErrorMessage(err));
     }
   };
 
@@ -209,6 +251,15 @@ export default function AuthPage() {
           </div>
         </div>
       </motion.div>
+
+      <TermsModal 
+        isOpen={showTerms}
+        onAccept={() => {
+          setShowTerms(false);
+          handleAuth();
+        }}
+        onClose={() => setShowTerms(false)}
+      />
 
       <Footer />
     </main>
