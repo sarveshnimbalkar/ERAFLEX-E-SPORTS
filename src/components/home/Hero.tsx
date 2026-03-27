@@ -1,199 +1,264 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef, useState } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { useEffect, useRef } from "react";
-import * as THREE from "three";
+
+const JERSEYS = [
+  { src: "/images/real_madrid.png", line1: "REAL",   line2: "MADRID", tag: "LA LIGA", color: "#c0a050" },
+  { src: "/images/barcelona.png",   line1: "BARÇA",  line2: "KIT",    tag: "LA LIGA", color: "#a50044" },
+  { src: "/images/india.png",       line1: "TEAM",   line2: "INDIA",  tag: "CRICKET", color: "#0033a0" },
+  { src: "/images/lakers.png",      line1: "LAKERS", line2: "CITY",   tag: "NBA",     color: "#552583" },
+];
 
 export const Hero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const active = JERSEYS[activeIdx];
 
-  useEffect(() => {
+  // Spring mouse tracking
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+  const springX = useSpring(rawX, { stiffness: 50, damping: 18 });
+  const springY = useSpring(rawY, { stiffness: 50, damping: 18 });
+
+  // Jersey: floats opposite to mouse
+  const jerseyTranslateX = useTransform(springX, [-0.5, 0.5], ["-3%", "3%"]);
+  const jerseyTranslateY = useTransform(springY, [-0.5, 0.5], ["-2.5%", "2.5%"]);
+  const jerseyRotY = useTransform(springX, [-0.5, 0.5], [-6, 6]);
+  const jerseyRotX = useTransform(springY, [-0.5, 0.5], [4, -4]);
+
+  // Text: drifts with mouse (shallower)
+  const textX = useTransform(springX, [-0.5, 0.5], ["1%", "-1%"]);
+  const textY = useTransform(springY, [-0.5, 0.5], ["0.8%", "-0.8%"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    containerRef.current.appendChild(renderer.domElement);
-
-    // Create intricate 3D environment
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 4000;
-    const posArray = new Float32Array(particlesCount * 3);
-    
-    for(let i = 0; i < particlesCount * 3; i++) {
-        posArray[i] = (Math.random() - 0.5) * 60;
-    }
-    
-    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    
-    const particlesMaterial = new THREE.PointsMaterial({
-        size: 0.04,
-        color: 0x00ffcc,
-        transparent: true,
-        opacity: 0.6,
-        blending: THREE.AdditiveBlending
-    });
-    
-    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-    scene.add(particlesMesh);
-
-    // Digital grid ground
-    const gridHelper = new THREE.GridHelper(100, 100, 0xe11d48, 0xffffff);
-    gridHelper.position.y = -3;
-    const gridMaterial = gridHelper.material as THREE.Material;
-    gridMaterial.transparent = true;
-    gridMaterial.opacity = 0.1;
-    scene.add(gridHelper);
-
-    // Floating geometry objects
-    const group = new THREE.Group();
-    scene.add(group);
-
-    const geo1 = new THREE.IcosahedronGeometry(1.5, 0);
-    const mat1 = new THREE.MeshBasicMaterial({ color: 0xff0033, wireframe: true, transparent: true, opacity: 0.2 });
-    const mesh1 = new THREE.Mesh(geo1, mat1);
-    mesh1.position.set(4, 0, -2);
-    group.add(mesh1);
-
-    const geo2 = new THREE.OctahedronGeometry(2, 0);
-    const mat2 = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.1 });
-    const mesh2 = new THREE.Mesh(geo2, mat2);
-    mesh2.position.set(-5, 2, -4);
-    group.add(mesh2);
-
-    camera.position.z = 5;
-
-    let mouseX = 0;
-    let mouseY = 0;
-
-    const windowHalfX = window.innerWidth / 2;
-    const windowHalfY = window.innerHeight / 2;
-
-    const onDocumentMouseMove = (event: MouseEvent) => {
-        mouseX = (event.clientX - windowHalfX) * 0.0005;
-        mouseY = (event.clientY - windowHalfY) * 0.0005;
-    };
-
-    document.addEventListener('mousemove', onDocumentMouseMove);
-
-    let frame = 0;
-    const animate = () => {
-        requestAnimationFrame(animate);
-        frame++;
-
-        particlesMesh.rotation.y += 0.0005;
-        particlesMesh.rotation.x += 0.0002;
-        
-        mesh1.rotation.x += 0.002;
-        mesh1.rotation.y -= 0.003;
-
-        mesh2.rotation.x -= 0.001;
-        mesh2.rotation.y += 0.002;
-
-        // Parallax depth effect
-        camera.position.x += (mouseX * 5 - camera.position.x) * 0.05;
-        camera.position.y += (-mouseY * 5 - camera.position.y) * 0.05;
-        camera.lookAt(scene.position);
-
-        renderer.render(scene, camera);
-    };
-
-    animate();
-
-    const handleResize = () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-        window.removeEventListener("resize", handleResize);
-        document.removeEventListener('mousemove', onDocumentMouseMove);
-        if (containerRef.current) containerRef.current.innerHTML = '';
-        renderer.dispose();
-    };
-  }, []);
+    const r = containerRef.current.getBoundingClientRect();
+    rawX.set((e.clientX - r.left) / r.width - 0.5);
+    rawY.set((e.clientY - r.top) / r.height - 0.5);
+  };
+  const handleMouseLeave = () => { rawX.set(0); rawY.set(0); };
 
   return (
-    <section className="relative h-screen flex flex-col justify-center overflow-hidden pt-20">
-      {/* Interactive 3D Background Canvas */}
-      <div ref={containerRef} className="absolute inset-0 z-0 pointer-events-auto mix-blend-screen opacity-80" />
+    <section
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="relative w-full min-h-screen bg-black overflow-hidden flex flex-col"
+    >
+      {/* ── Pure black radial background ── */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_70%_at_50%_55%,#111_0%,#000_100%)]" />
 
-      {/* Background Image with Premium Tint */}
-      <div className="absolute inset-0 z-[-1] pointer-events-none">
-        <img
-          src="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=2670&auto=format&fit=crop"
-          alt="Football players playing match"
-          className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-luminosity grayscale contrast-150"
-        />
-        <div className="absolute inset-0 bg-gradient-to-tr from-brand-dark via-brand-dark/80 to-brand-purple/10" />
-      </div>
+      {/* ── Ambient glow (per jersey color) ── */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none z-[1]"
+        style={{
+          background: `radial-gradient(ellipse 60% 60% at 55% 50%, ${active.color}18 0%, transparent 70%)`,
+          transition: "background 0.9s ease",
+        }}
+      />
 
-      {/* Hero Content - Brutalist Left Alignment */}
-      <div className="relative z-10 px-6 md:px-16 w-full max-w-7xl mx-auto flex flex-col items-start mt-12 pointer-events-none">
+      {/* ── Scan lines ── */}
+      <div
+        className="absolute inset-0 z-[2] pointer-events-none opacity-[0.025]"
+        style={{
+          backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.5) 2px,rgba(255,255,255,0.5) 3px)",
+          backgroundSize: "100% 4px",
+        }}
+      />
 
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="font-display text-[15vw] md:text-[8rem] leading-[0.85] mb-6 tracking-tighter"
-        >
-          ENGINEERED <br />
-          <span className="text-brand-accent">
-            FOR GREATNESS
-          </span>
-        </motion.h1>
+      {/* ── Vignette ── */}
+      <div className="absolute inset-0 z-[3] pointer-events-none"
+        style={{ background: "radial-gradient(ellipse 80% 80% at 50% 50%,transparent 55%,rgba(0,0,0,0.75) 100%)" }}
+      />
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="font-indian text-lg md:text-xl tracking-[0.3em] mb-12 text-white/80 uppercase max-w-2xl border-l-4 border-brand-accent pl-6 py-2"
-        >
-          Premium performance gear for the elite athlete. 
-          Defy limits.
-        </motion.p>
-
+      {/* ── Main 3-column layout ── */}
+      <div className="relative z-[10] flex-1 flex items-center w-full max-w-[1600px] mx-auto px-6 md:px-10 lg:px-16 pt-24 pb-20">
+        
+        {/* LEFT — typography */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.7 }}
-          className="flex flex-col sm:flex-row gap-6 justify-start w-full pointer-events-auto"
+          style={{ x: textX, y: textY }}
+          className="w-[30%] min-w-0 flex-shrink-0 flex flex-col justify-center z-10"
         >
-          <button className="bg-brand-accent text-white px-12 py-5 font-black text-lg md:text-xl hover:bg-white hover:text-black transition-all duration-300 shadow-xl group hover-lift flex items-center justify-center gap-3 uppercase tracking-wider">
-            SHOP NOW
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
-          </button>
-          <button className="border-2 border-white px-10 py-5 font-black text-lg md:text-xl hover:bg-white hover:text-black transition-all duration-300 hover-lift uppercase tracking-wider">
-            VIEW CAMPAIGN
-          </button>
+          {/* Eyebrow */}
+          <motion.span
+            key={activeIdx + "eyebrow"}
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.55 }}
+            className="font-indian text-[9px] tracking-[0.6em] uppercase text-brand-gold mb-5 flex items-center gap-2"
+          >
+            <span className="w-6 h-px bg-brand-gold opacity-60" />
+            EF — 2026 · {active.tag}
+          </motion.span>
+
+          {/* Heading line 1 */}
+          <div className="overflow-hidden">
+            <motion.h1
+              key={activeIdx + "line1"}
+              initial={{ y: 80, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] as [number,number,number,number] }}
+              className="font-display text-[clamp(3rem,6vw,7.5rem)] leading-[0.85] tracking-tighter text-white"
+            >
+              {active.line1}
+            </motion.h1>
+          </div>
+
+          {/* Heading line 2 */}
+          <div className="overflow-hidden mb-8">
+            <motion.h1
+              key={activeIdx + "line2"}
+              initial={{ y: 80, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.75, delay: 0.1, ease: [0.16, 1, 0.3, 1] as [number,number,number,number] }}
+              className="font-display text-[clamp(3rem,6vw,7.5rem)] leading-[0.85] tracking-tighter text-brand-accent"
+            >
+              {active.line2}
+            </motion.h1>
+          </div>
+
+          {/* CTA */}
+          <motion.div
+            key={activeIdx + "cta"}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.55 }}
+          >
+            <Link
+              href="/shop"
+              className="btn-premium inline-flex items-center gap-3 px-7 py-4 text-xs tracking-widest group"
+            >
+              SHOP THIS KIT
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
+            </Link>
+          </motion.div>
         </motion.div>
+
+        {/* CENTER — jersey */}
+        <div className="flex-1 flex items-center justify-center relative z-10 min-w-0">
+          {/* Ghost number behind jersey */}
+          <div
+            className="absolute font-display text-[35vw] leading-none text-white/[0.025] select-none pointer-events-none"
+            style={{ zIndex: 0 }}
+          >
+            {String(activeIdx + 1).padStart(2, "0")}
+          </div>
+
+          <motion.div
+            style={{
+              x: jerseyTranslateX,
+              y: jerseyTranslateY,
+              rotateY: jerseyRotY,
+              rotateX: jerseyRotX,
+              transformStyle: "preserve-3d",
+              perspective: 1200,
+            }}
+            className="relative z-10"
+          >
+            {/* Per-jersey halo glow */}
+            <div
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none"
+              style={{
+                background: `radial-gradient(circle, ${active.color}20 0%, transparent 65%)`,
+                filter: "blur(30px)",
+                transition: "background 0.8s ease",
+              }}
+            />
+
+            {/* Jersey image with cross-fade animation */}
+            <motion.img
+              key={activeIdx}
+              src={active.src}
+              alt={active.line1 + " " + active.line2}
+              draggable={false}
+              initial={{ opacity: 0, y: 40, scale: 0.92 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as [number,number,number,number] }}
+              className="relative z-10 select-none w-[280px] sm:w-[320px] md:w-[380px] lg:w-[440px] xl:w-[500px] object-contain"
+              style={{
+                filter: `drop-shadow(0 0 50px ${active.color}28) drop-shadow(0 30px 60px rgba(0,0,0,0.85))`,
+              }}
+            />
+
+            {/* Jersey tag label */}
+            <motion.p
+              key={activeIdx + "tag"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-center font-indian text-[9px] tracking-[0.5em] uppercase text-white/25 mt-4"
+            >
+              {active.tag}
+            </motion.p>
+          </motion.div>
+        </div>
+
+        {/* RIGHT — stats */}
+        <div className="w-[16%] min-w-[110px] flex-shrink-0 hidden md:flex flex-col justify-center items-end gap-8 z-10">
+          {[
+            { label: "Collection", value: "2026" },
+            { label: "Edition",    value: "Elite" },
+            { label: "Crafted",    value: "India" },
+          ].map((item, i) => (
+            <motion.div
+              key={item.label}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.35 + i * 0.1 }}
+              className="text-right"
+            >
+              <p className="font-display text-xl lg:text-2xl xl:text-3xl text-white/75">{item.value}</p>
+              <p className="font-indian text-[8px] tracking-[0.45em] uppercase text-white/25 mt-0.5">{item.label}</p>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
-      {/* Decorative Elements - Grid & Ticker */}
-      <div className="absolute bottom-8 left-0 right-0 overflow-hidden border-y border-white/5 bg-black/40 backdrop-blur-md py-3 flex z-10 pointer-events-none">
-        <motion.div 
-           animate={{ x: ["0%", "-50%"] }}
-           transition={{ ease: "linear", duration: 20, repeat: Infinity }}
-           className="flex whitespace-nowrap gap-12 font-display italic text-2xl text-white/40 tracking-widest"
-        >
-           {Array(10).fill(0).map((_, i) => (
-             <span key={i}>EF-2026 // PREMIUM ATHLETICS // <span className="text-brand-accent">PERFORMANCE GEAR</span> //</span>
-           ))}
-        </motion.div>
-      </div>
-      
-      <div className="absolute top-1/2 right-12 -translate-y-1/2 hidden lg:flex flex-col gap-8 opacity-40 z-10 pointer-events-none">
-        {["01", "02", "03", "04"].map((step) => (
-          <div key={step} className="font-indian tracking-widest text-xs border border-white/20 p-2 text-center rounded-sm">
-            {step}
-          </div>
-        ))}
+      {/* ── Bottom: thumbnail switcher + marquee ── */}
+      <div className="relative z-[15] w-full">
+        {/* Thumbnail strip */}
+        <div className="flex items-center justify-center gap-4 pb-4 px-4">
+          {JERSEYS.map((j, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveIdx(i)}
+              className="group transition-all duration-300 focus:outline-none"
+            >
+              <div
+                className={`w-12 h-14 md:w-14 md:h-16 rounded overflow-hidden border-2 transition-all duration-400 ${
+                  i === activeIdx
+                    ? "border-brand-accent scale-110 shadow-[0_0_16px_rgba(225,29,72,0.5)]"
+                    : "border-white/10 opacity-40 hover:opacity-65 hover:border-white/25"
+                }`}
+              >
+                <img src={j.src} alt={j.line1} className="w-full h-full object-cover" />
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Marquee */}
+        <div className="border-t border-white/5 bg-black/60 backdrop-blur-sm py-3 overflow-hidden pointer-events-none">
+          <motion.div
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ ease: "linear", duration: 24, repeat: Infinity }}
+            className="flex whitespace-nowrap gap-12 font-display italic text-base text-white/20 tracking-widest"
+          >
+            {Array(12).fill(0).map((_, i) => (
+              <span key={i} className="flex items-center gap-12">
+                <span>EF-2026</span>
+                <span className="text-brand-accent text-xs">✦</span>
+                <span>ELITE JERSEYS</span>
+                <span className="text-brand-gold text-xs">✦</span>
+                <span className="text-brand-accent">PREMIUM GEAR</span>
+                <span className="text-white/15 text-xs">✦</span>
+              </span>
+            ))}
+          </motion.div>
+        </div>
       </div>
     </section>
   );
