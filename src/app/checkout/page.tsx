@@ -389,7 +389,7 @@ export default function CheckoutPage() {
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                        {/* Stripe Option */}
+                        {/* Stripe Option 
                         <button
                           type="button"
                           onClick={() => setPaymentMethod("stripe")}
@@ -413,6 +413,7 @@ export default function CheckoutPage() {
                             </div>
                           </div>
                         </button>
+                        */}
 
                         {/* COD Option */}
                         <button
