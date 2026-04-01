@@ -420,7 +420,7 @@ export default function CheckoutPage() {
                         {/* UPI Option */}
                         <button
                           type="button"
-                          onClick={() => setPaymen tMethod("upi")}
+                          onClick={() => setPaymentMethod("upi")}
                           className={cn(
                             "p-6 rounded-2xl border-2 transition-all duration-300 text-left group",
                             paymentMethod === "upi"
