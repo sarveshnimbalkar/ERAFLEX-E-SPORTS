@@ -38,7 +38,7 @@ export interface UserProfile {
 
 // ─── Order ────────────────────────────────────────────
 export type OrderStatus = 'Processing' | 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled';
-export type PaymentMethod = 'stripe' | 'cod';
+export type PaymentMethod = "stripe" | "cod" | "upi";
 export type PaymentStatus = 'Paid' | 'Pending' | 'Failed' | 'Refunded';
 
 export interface OrderItem {
