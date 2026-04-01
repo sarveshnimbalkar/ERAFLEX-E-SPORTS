@@ -92,46 +92,54 @@ export default function CheckoutPage() {
     }
   };
 
-  const handlePlaceOrder = async (stripePaymentId?: string) => {
-    if (!user) return toast.error("Please login");
-    setLoading(true);
+ const handlePlaceOrder = async (stripePaymentId?: string) => {
+  if (!user) return toast.error("Please login");
 
-    try {
-      const orderItems: OrderItem[] = items.map((item) => ({
-        productId: item.id,
-        name: item.name,
-        team: item.team,
-        image: item.image,
-        price: item.price,
-        quantity: item.quantity,
-      }));
+  // NEW: Validate UPI Transaction ID
+  if (paymentMethod === "upi" && !upiTransactionId.trim()) {
+    return toast.error("Please enter your UPI Transaction ID (UTR)");
+  }
 
-      const newOrderId = await orderService.createOrder({
-        userId: user.uid,
-        userEmail: user.email || "",
-        userName: user.displayName || "",
-        items: orderItems,
-        shippingAddress: shipping,
-        subtotal: total,
-        shippingCharges: SHIPPING_CHARGES,
-        total: grandTotal,
-        paymentMethod,
-        paymentStatus: paymentMethod === "cod" ? "Pending" : "Paid",
-        stripePaymentId: stripePaymentId || (paymentMethod === "stripe" ? `pi_sim_${Date.now()}` : undefined),
-      });
+  setLoading(true);
 
-      setOrderId(newOrderId);
-      setOrderPlaced(true);
-      clearCart();
-      toast.success("Order placed successfully!");
-    } catch (err) {
-      console.error("Order failed:", err);
-      toast.error("Failed to place order. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const orderItems: OrderItem[] = items.map((item) => ({
+      productId: item.id,
+      name: item.name,
+      team: item.team,
+      image: item.image,
+      price: item.price,
+      quantity: item.quantity,
+    }));
 
+    const newOrderId = await orderService.createOrder({
+      userId: user.uid,
+      userEmail: user.email || "",
+      userName: user.displayName || "",
+      items: orderItems,
+      shippingAddress: shipping,
+      subtotal: total,
+      shippingCharges: SHIPPING_CHARGES,
+      total: grandTotal,
+      paymentMethod,
+      // NEW: Update payment status logic to include UPI
+      paymentStatus: paymentMethod === "cod" ? "Pending" : (paymentMethod === "upi" ? "Verification Required" : "Paid"),
+      stripePaymentId: stripePaymentId || (paymentMethod === "stripe" ? `pi_sim_${Date.now()}` : undefined),
+      // NEW: Pass the UPI ID to Firebase
+      upiTransactionId: paymentMethod === "upi" ? upiTransactionId : undefined, 
+    });
+
+    setOrderId(newOrderId);
+    setOrderPlaced(true);
+    clearCart();
+    toast.success("Order placed successfully!");
+  } catch (err) {
+    console.error("Order failed:", err);
+    toast.error("Failed to place order. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
   // ─── Empty Cart State ───
   if (items.length === 0 && !orderPlaced) {
     return (
