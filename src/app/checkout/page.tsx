@@ -45,7 +45,8 @@ export default function CheckoutPage() {
   });
 
   // Payment
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("stripe");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("upi");
+  const [upiTransactionId, setUpiTransactionId] = useState("");
 
   const SHIPPING_CHARGES = total >= 2000 ? 0 : 99;
   const grandTotal = total + SHIPPING_CHARGES;
