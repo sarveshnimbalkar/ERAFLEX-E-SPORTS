@@ -67,6 +67,7 @@ export const orderService = {
     paymentMethod: PaymentMethod;
     paymentStatus: PaymentStatus;
     stripePaymentId?: string;
+    upiTransactionId?: string;
   }): Promise<string> {
     const docRef = await addDoc(collection(db, "orders"), {
       ...data,

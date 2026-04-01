@@ -391,30 +391,55 @@ export default function CheckoutPage() {
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                        {/* Stripe Option 
-                        <button
-                          type="button"
-                          onClick={() => setPaymentMethod("stripe")}
-                          className={cn(
-                            "p-6 rounded-2xl border-2 transition-all duration-300 text-left group",
-                            paymentMethod === "stripe"
-                              ? "border-brand-accent bg-brand-accent/10 shadow-[0_0_20px_rgba(255,0,85,0.2)]"
-                              : "border-white/10 hover:border-white/20"
-                          )}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={cn(
-                              "w-10 h-10 rounded-xl flex items-center justify-center",
-                              paymentMethod === "stripe" ? "bg-brand-accent" : "bg-white/5"
-                            )}>
-                              <CreditCard className="w-5 h-5" />
+                        {/* Stripe Option
+                        <div className="flex flex-col gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setPaymentMethod("stripe")}
+                            className={cn(
+                              "p-6 rounded-2xl border-2 transition-all duration-300 text-left group",
+                              paymentMethod === "stripe"
+                                ? "border-brand-accent bg-brand-accent/10 shadow-[0_0_20px_rgba(255,0,85,0.2)]"
+                                : "border-white/10 hover:border-white/20"
+                            )}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={cn(
+                                "w-10 h-10 rounded-xl flex items-center justify-center",
+                                paymentMethod === "stripe" ? "bg-brand-accent" : "bg-white/5"
+                              )}>
+                                <CreditCard className="w-5 h-5" />
+                              </div>
+                              <div>
+                                <p className="font-bold text-sm">Credit / Debit Card</p>
+                                <p className="text-[10px] text-gray-500 font-indian tracking-widest">Via Stripe Secure</p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-bold text-sm">Credit / Debit Card</p>
-                              <p className="text-[10px] text-gray-500 font-indian tracking-widest">Via Stripe Secure</p>
-                            </div>
-                          </div>
-                        </button>
+                          </button>
+                          
+                          <AnimatePresence>
+                            {paymentMethod === "stripe" && (
+                              <motion.div 
+                                initial={{ opacity: 0, height: 0 }} 
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="flex items-center gap-3 px-2 mt-1"
+                              >
+                                <div className="flex items-center gap-1.5 px-2 py-1 rounded border border-white/10 bg-white/5">
+                                  <Lock className="w-3 h-3 text-brand-success" />
+                                  <span className="text-[8px] uppercase tracking-widest font-indian text-gray-400">256-Bit SSL</span>
+                                </div>
+                                <div className="flex items-center justify-center bg-white px-2 py-0.5 rounded shadow-sm">
+                                  <span className="text-[#1A1F71] font-black text-[10px] italic">VISA</span>
+                                </div>
+                                <div className="flex items-center justify-center bg-white px-2 py-0.5 rounded shadow-sm gap-[-2px]">
+                                  <div className="w-2.5 h-2.5 rounded-full bg-[#EB001B] opacity-90 -mr-1" />
+                                  <div className="w-2.5 h-2.5 rounded-full bg-[#F79E1B] mix-blend-multiply" />
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
                         */}
 
                         {/* UPI Option */}

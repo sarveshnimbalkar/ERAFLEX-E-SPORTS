@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ShoppingCart, Star, Heart, Eye } from "lucide-react";
 import type { Product } from "@/types";
 import { useCartStore } from "@/store/useCartStore";
@@ -21,19 +21,37 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   const [wishlisted, setWishlisted] = useState(false);
   const [addingToWishlist, setAddingToWishlist] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // ── 3D Tilt on hover ──
+  // ── High-Fidelity 3D Tilt ──
+  const mouseX = useMotionValue(0.5);
+  const mouseY = useMotionValue(0.5);
+  
+  // Spring physics for buttery smoothness
+  const springX = useSpring(mouseX, { stiffness: 400, damping: 30, mass: 0.8 });
+  const springY = useSpring(mouseY, { stiffness: 400, damping: 30, mass: 0.8 });
+  
+  const rotateX = useTransform(springY, [0, 1], [15, -15]);
+  const rotateY = useTransform(springX, [0, 1], [-15, 15]);
+  
+  // Interactive glare effect
+  const glareOpacity = useTransform(springY, [0, 1], [0.1, 0.4]);
+  const glareY = useTransform(springY, [0, 1], ["-20%", "120%"]);
+  
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
-    const x = ((e.clientY - rect.top) / rect.height - 0.5) * -12;
-    const y = ((e.clientX - rect.left) / rect.width - 0.5) * 12;
-    setTilt({ x, y });
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    mouseX.set(x);
+    mouseY.set(y);
   };
-  const handleMouseLeave = () => setTilt({ x: 0, y: 0 });
+  
+  const handleMouseLeave = () => {
+    mouseX.set(0.5);
+    mouseY.set(0.5);
+  };
 
   // ── Ripple on add-to-cart ──
   const createRipple = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -83,72 +101,78 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   return (
     <motion.div
       ref={cardRef}
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
+      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
-        transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-        transition: tilt.x === 0 && tilt.y === 0 ? "transform 0.5s ease" : "transform 0.1s ease",
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+        perspective: 1200,
       }}
-      className="group relative bg-brand-surface border border-white/5 overflow-hidden rounded-sm"
-      // Glow shadow on hover is handled via CSS below via group-hover
+      className="group relative bg-brand-surface border border-white/5 overflow-hidden rounded-md z-10 hover:z-20 transition-shadow duration-500 shadow-2xl hover:shadow-[0_20px_60px_rgba(225,29,72,0.15)]"
     >
-      {/* Hover glow ring */}
-      <div className="absolute inset-0 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none z-20"
-        style={{ boxShadow: "inset 0 0 0 1px rgba(225,29,72,0.25), 0 0 40px rgba(225,29,72,0.15)" }}
+      {/* Interactive Glare overlay */}
+      <motion.div 
+        className="absolute inset-x-0 w-[150%] h-[30%] bg-white blur-[50px] rotate-45 pointer-events-none z-30 mix-blend-overlay"
+        style={{
+          opacity: glareOpacity,
+          top: glareY,
+          left: "-25%",
+        }}
       />
 
       {/* Badge */}
-      <div className="absolute top-4 left-4 z-10">
-        <span className="bg-brand-accent/90 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+      <div className="absolute top-4 left-4 z-40 transform-gpu" style={{ transform: "translateZ(30px)" }}>
+        <span className="bg-brand-accent/90 backdrop-blur-md text-white text-[10px] font-bold px-4 py-1.5 rounded-sm uppercase tracking-widest shadow-lg">
           {product.category}
         </span>
       </div>
 
       {/* Action Buttons */}
-      <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 translate-x-14 group-hover:translate-x-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]">
+      <div className="absolute top-4 right-4 z-40 flex flex-col gap-2 translate-x-14 group-hover:translate-x-0 transition-transform duration-500 ease-[0.16,1,0.3,1] transform-gpu" style={{ transform: "translateZ(30px)" }}>
         <button
           onClick={handleToggleWishlist}
           disabled={addingToWishlist}
           className={cn(
-            "w-10 h-10 rounded-full glass flex items-center justify-center transition-all duration-300",
+            "w-10 h-10 rounded-sm glass flex items-center justify-center transition-all duration-300 backdrop-blur-md border border-white/20",
             wishlisted
               ? "bg-brand-accent text-white scale-110"
-              : "hover:bg-brand-accent hover:scale-110"
+              : "hover:bg-brand-accent hover:border-brand-accent hover:scale-110"
           )}
         >
           <Heart className={cn("w-4 h-4 transition-all duration-300", wishlisted && "fill-current scale-110")} />
         </button>
         <Link
           href={`/shop/${product.id}`}
-          className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"
+          className="w-10 h-10 rounded-sm glass flex items-center justify-center hover:bg-white hover:text-black hover:scale-110 transition-all duration-300 backdrop-blur-md border border-white/20"
         >
           <Eye className="w-4 h-4" />
         </Link>
       </div>
 
       {/* Image Container */}
-      <Link href={`/shop/${product.id}`} className="relative aspect-[4/5] overflow-hidden bg-[#1a1a1a] block">
+      <Link href={`/shop/${product.id}`} className="relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-black block" style={{ transformStyle: "preserve-3d" }}>
+        
         <motion.img
           src={product.image}
           alt={product.name}
           loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108"
-          style={{ scale: 1 }}
-          whileHover={{ scale: 1.08 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
+          className="w-full h-full object-cover transition-transform duration-[1200ms] ease-[0.16,1,0.3,1] group-hover:scale-110 origin-bottom"
+          style={{ transform: "translateZ(20px)" }} // Image pops out
         />
+        
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/40 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
         {/* Slide-up Add to Cart */}
-        <div className="absolute bottom-0 left-0 w-full p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]">
+        <div className="absolute bottom-0 left-0 w-full p-6 translate-y-[120%] group-hover:translate-y-0 transition-transform duration-700 ease-[0.16,1,0.3,1] z-50 transform-gpu" style={{ transform: "translateZ(40px)" }}>
           <button
             onClick={handleAddToCart}
-            className="ripple-btn w-full bg-brand-accent text-white py-3 md:py-4 font-bold tracking-wider uppercase flex items-center justify-center gap-3 text-sm md:text-base relative overflow-hidden transition-all duration-300 hover:bg-white hover:text-black"
+            className="w-full bg-brand-accent text-white py-4 font-bold tracking-[0.2em] uppercase flex items-center justify-center gap-3 text-sm relative overflow-hidden transition-all duration-300 hover:bg-white hover:text-black rounded-sm shadow-[0_10px_30px_rgba(225,29,72,0.3)]"
           >
             {/* Ripples */}
             {ripples.map(({ id, x, y }) => (
@@ -162,9 +186,10 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               {addedToCart ? (
                 <motion.span
                   key="added"
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ ease: [0.16, 1, 0.3, 1] }}
                   className="flex items-center gap-2"
                 >
                   ✓ ADDED TO BAG
@@ -172,9 +197,10 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               ) : (
                 <motion.span
                   key="add"
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ ease: [0.16, 1, 0.3, 1] }}
                   className="flex items-center gap-2"
                 >
                   <ShoppingCart className="w-4 h-4" />
@@ -187,41 +213,48 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       </Link>
 
       {/* Content */}
-      <div className="p-4 md:p-5">
-        <div className="flex justify-between items-start gap-2 mb-1">
+      <div className="p-5 md:p-6 bg-brand-surface transform-gpu" style={{ transform: "translateZ(10px)" }}>
+        <div className="flex justify-between items-start gap-4 mb-2">
           <Link href={`/shop/${product.id}`} className="min-w-0 flex-1 hover:opacity-80 transition-opacity">
-            <h3 className="font-display text-lg md:text-xl group-hover:text-brand-accent transition-colors duration-300 truncate">
+            <h3 className="font-display text-xl md:text-2xl group-hover:text-brand-accent transition-colors duration-300 truncate tracking-tight">
               {product.name}
             </h3>
-            <p className="text-gray-500 text-[10px] md:text-xs font-indian tracking-widest uppercase mt-0.5">
+            <p className="text-gray-500 text-[10px] md:text-xs font-indian tracking-[0.2em] uppercase mt-1">
               {product.team}
             </p>
           </Link>
-          <p className="font-display text-lg md:text-xl text-brand-gold flex-shrink-0">
-            ₹{product.price.toLocaleString()}
-          </p>
+          <div className="flex flex-col items-end flex-shrink-0">
+            <p className="font-display text-xl md:text-2xl text-white leading-none">
+              ₹{product.price.toLocaleString()}
+            </p>
+            <p className="text-gray-600 text-[10px] md:text-xs font-indian tracking-[0.1em] line-through mt-1">
+              ₹{Math.floor(product.price * 1.3).toLocaleString()}
+            </p>
+          </div>
         </div>
 
         {/* Urgency Indicator */}
         {product.stock && product.stock <= 80 && (
-          <p className="text-brand-accent font-indian text-[10px] uppercase font-bold tracking-widest mt-1 mb-2 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse" />
-            Selling Fast — Only {product.stock} Left
-          </p>
+          <div className="bg-brand-accent/10 border border-brand-accent/30 rounded-sm px-3 py-1.5 mt-3 inline-flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-ping" />
+            <p className="text-brand-accent font-indian text-[9px] uppercase font-bold tracking-[0.15em]">
+              High Demand — Only {product.stock} Left
+            </p>
+          </div>
         )}
 
         {/* Star Rating */}
-        <div className="flex items-center gap-1 mt-3">
+        <div className="flex items-center gap-1 mt-4">
           {[...Array(5)].map((_, i) => (
             <Star
               key={i}
               className={cn(
-                "w-3 h-3",
-                i < (product.rating || 5) ? "fill-brand-gold text-brand-gold" : "text-gray-700"
+                "w-3.5 h-3.5",
+                i < (product.rating || 5) ? "fill-white text-white" : "text-gray-800"
               )}
             />
           ))}
-          <span className="text-[10px] text-gray-500 ml-1.5 font-indian">
+          <span className="text-[10px] text-gray-400 ml-2 font-indian tracking-[0.1em]">
             ({(product.rating || 5).toFixed(1)})
           </span>
         </div>

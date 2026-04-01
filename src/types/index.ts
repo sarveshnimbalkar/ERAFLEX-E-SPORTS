@@ -39,7 +39,7 @@ export interface UserProfile {
 // ─── Order ────────────────────────────────────────────
 export type OrderStatus = 'Processing' | 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled';
 export type PaymentMethod = "stripe" | "cod" | "upi";
-export type PaymentStatus = 'Paid' | 'Pending' | 'Failed' | 'Refunded';
+export type PaymentStatus = 'Paid' | 'Pending' | 'Failed' | 'Refunded' | 'Verification Required';
 
 export interface OrderItem {
   productId: string;
@@ -72,6 +72,7 @@ export interface Order {
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   stripePaymentId?: string;
+  upiTransactionId?: string;
   orderStatus: OrderStatus;
   createdAt: any;
   updatedAt: any;

@@ -378,6 +378,48 @@ export default function Dashboard() {
                           )}
                         </div>
 
+                        {/* Elite Rewards UI */}
+                        <div className="md:col-span-2 bg-gradient-to-br from-brand-dark via-brand-accent/5 to-brand-gold/10 p-6 md:p-8 rounded-2xl border border-brand-gold/30 relative overflow-hidden group">
+                          <div className="absolute top-0 right-0 w-48 h-48 bg-brand-gold/10 blur-3xl rounded-full group-hover:bg-brand-gold/20 transition-colors" />
+                          <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4">
+                            <div>
+                              <h3 className="font-display text-3xl italic uppercase text-brand-gold flex items-center gap-3">
+                                <Star className="w-6 h-6 fill-brand-gold text-brand-gold" />
+                                Elite Rewards
+                              </h3>
+                              <p className="text-xs text-gray-400 font-indian tracking-[0.2em] mt-2 uppercase">
+                                Earn 500 XP per order • Level up for exclusive drops
+                              </p>
+                            </div>
+                            <div className="text-left md:text-right">
+                              <p className="font-display text-4xl uppercase italic leading-none text-white">
+                                {orders.filter(o => o.paymentStatus === "Paid").length * 500} <span className="text-xl text-gray-500">XP</span>
+                              </p>
+                              <p className="text-[10px] text-brand-gold font-indian tracking-[0.2em] mt-1 uppercase">
+                                Current Tier: Silver
+                              </p>
+                            </div>
+                          </div>
+                          
+                          {/* Progress bar */}
+                          <div className="relative z-10 w-full h-3 bg-black/60 rounded-full overflow-hidden mb-3 border border-white/5 shadow-inner">
+                            <motion.div 
+                              initial={{ width: 0 }} 
+                              animate={{ width: `${Math.min((orders.filter(o => o.paymentStatus === "Paid").length * 500 / 5000) * 100, 100)}%` }}
+                              transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+                              className="h-full bg-gradient-to-r from-brand-accent to-brand-gold relative"
+                            >
+                              <div className="absolute inset-0 bg-white/20 animate-pulse" />
+                            </motion.div>
+                          </div>
+                          <div className="relative z-10 flex justify-between items-center w-full">
+                            <span className="text-[10px] text-gray-500 font-indian tracking-widest uppercase">Silver</span>
+                            <span className="text-[10px] text-brand-gold font-indian tracking-widest uppercase truncate">
+                              {5000 - (orders.filter(o => o.paymentStatus === "Paid").length * 500)} XP to Gold Tier (Free Shipping)
+                            </span>
+                          </div>
+                        </div>
+
                         {/* Quick Stats */}
                         <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
                           {[

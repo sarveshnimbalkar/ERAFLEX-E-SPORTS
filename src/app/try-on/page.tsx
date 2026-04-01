@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { Header } from "@/components/shared/Header";
 import { Footer } from "@/components/shared/Footer";
 import { Camera, RefreshCw, Download, Zap, AlertCircle } from "lucide-react";
@@ -8,7 +9,7 @@ import toast from "react-hot-toast";
 
 const AVAILABLE_KITS = [
   { id: 'home', name: 'Home Kit (White)', image: '/images/real_madrid.png', fallbackColor: 'bg-white/80 mix-blend-overlay' },
-  { id: 'away', name: 'Away Kit (Dark)', image: '/images/arsenal.png', fallbackColor: 'bg-black/80 mix-blend-multiply' }
+  { id: 'away', name: 'Away Kit (Dark)', image: '/images/barcelona.png', fallbackColor: 'bg-black/80 mix-blend-multiply' }
 ];
 
 export default function TryOnPage() {

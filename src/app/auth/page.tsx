@@ -68,6 +68,17 @@ export default function AuthPage() {
           termsAccepted: true,
           acceptedTimestamp: serverTimestamp()
         });
+
+        // Send welcome email (fire-and-forget — never blocks signup)
+        try {
+          fetch("/api/send-welcome-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userName: name, userEmail: email }),
+          }).catch((err) => console.error("Welcome email request failed:", err));
+        } catch (emailErr) {
+          console.error("Welcome email error:", emailErr);
+        }
       } else {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         
@@ -99,15 +110,38 @@ export default function AuthPage() {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      await setDoc(doc(db, "users", result.user.uid), {
+
+      // Check if this is a first-time Google user
+      const userDocRef = doc(db, "users", result.user.uid);
+      const existingDoc = await getDoc(userDocRef);
+      const isNewUser = !existingDoc.exists();
+
+      await setDoc(userDocRef, {
         uid: result.user.uid,
         name: result.user.displayName,
         email: result.user.email,
         createdAt: serverTimestamp(),
         role: "user",
-        termsAccepted: true, // Google sign-in also implies consent or we could show modal
+        termsAccepted: true,
         acceptedTimestamp: serverTimestamp()
       }, { merge: true });
+
+      // Send welcome email only for first-time Google signups
+      if (isNewUser) {
+        try {
+          fetch("/api/send-welcome-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userName: result.user.displayName || "Champion",
+              userEmail: result.user.email,
+            }),
+          }).catch((err) => console.error("Welcome email request failed:", err));
+        } catch (emailErr) {
+          console.error("Welcome email error:", emailErr);
+        }
+      }
+
       router.push("/dashboard");
     } catch (err: any) {
       setError(getErrorMessage(err));
