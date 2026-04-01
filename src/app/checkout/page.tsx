@@ -469,7 +469,7 @@ export default function CheckoutPage() {
                       </div>
 
                       <div className="space-y-6">
-                        {/* Stripe Elements */}
+                        {/* Stripe Elements 
                         {paymentMethod === "stripe" && (
                           <div className="space-y-6">
                             {clientSecret ? (
@@ -493,6 +493,54 @@ export default function CheckoutPage() {
                             )}
                           </div>
                         )}
+                        */}
+
+                        {/* Manual UPI Interface */}
+{paymentMethod === "upi" && (
+  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+    <div className="bg-black/40 border border-white/10 rounded-2xl p-6 flex flex-col items-center text-center">
+      <h3 className="font-display text-xl italic uppercase mb-2">Scan & Pay</h3>
+      <p className="text-xs text-gray-400 font-indian tracking-widest mb-6">
+        Amount to pay: <span className="text-brand-accent font-bold">₹{grandTotal.toLocaleString()}</span>
+      </p>
+      
+      {/* TODO: Add your actual QR code image here */}
+      <div className="w-48 h-48 bg-white rounded-xl mb-4 p-2 flex items-center justify-center">
+        <div className="border-4 border-dashed border-gray-300 w-full h-full flex items-center justify-center text-gray-400 font-bold text-sm">
+          [QR CODE HERE]
+        </div>
+      </div>
+      
+      <p className="text-sm font-bold tracking-wider mb-1">your-upi-id@bank</p>
+      <p className="text-xs text-gray-500 font-indian">Scan with any UPI app</p>
+    </div>
+
+    <div className="space-y-3">
+      <label className="text-xs font-indian tracking-widest text-gray-400 uppercase">
+        Enter 12-Digit Transaction ID (UTR) <span className="text-brand-accent">*</span>
+      </label>
+      <input
+        type="text"
+        value={upiTransactionId}
+        onChange={(e) => setUpiTransactionId(e.target.value)}
+        placeholder="e.g. 312456789012"
+        className="w-full bg-black/40 border border-white/10 p-4 rounded-xl outline-none focus:border-brand-accent transition-all text-center tracking-[0.2em] font-bold"
+      />
+    </div>
+
+    <button
+      onClick={() => handlePlaceOrder()}
+      disabled={loading || !upiTransactionId}
+      className="w-full bg-brand-accent py-5 font-black text-2xl tracking-widest rounded-md hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed uppercase"
+    >
+      {loading ? (
+        <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
+      ) : (
+        "CONFIRM PAYMENT"
+      )}
+    </button>
+  </div>
+)}
 
                         {/* COD Button */}
                         {paymentMethod === "cod" && (
