@@ -190,7 +190,9 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500 font-indian tracking-widest uppercase text-xs">Payment</span>
-                <span className="font-bold uppercase text-xs">{paymentMethod === "cod" ? "Cash on Delivery" : "Stripe (Paid)"}</span>
+                <span className="font-bold uppercase text-xs">
+                  {paymentMethod === "cod" ? "Cash on Delivery" : paymentMethod === "upi" ? "UPI (Pending Verification)" : "Stripe (Paid)"}
+                </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500 font-indian tracking-widest uppercase text-xs">Total</span>
