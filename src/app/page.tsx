@@ -11,6 +11,7 @@ import { Footer } from "@/components/shared/Footer";
 import { Hero } from "@/components/home/Hero";
 import { RecommendedProducts } from "@/components/shared/RecommendedProducts";
 import { Testimonials } from "@/components/home/Testimonials";
+import { PRODUCTS } from "@/lib/data/products";
 import type { Product } from "@/types";
 
 const LoadingScreen = dynamic(
@@ -18,12 +19,18 @@ const LoadingScreen = dynamic(
   { ssr: false }
 );
 
+// Function to get random n items from array
+const getRandomProducts = (arr: Product[], n: number) => {
+  const shuffled = [...arr].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, n);
+};
+
+// Auto-refresh trending selection: 3 per sport
 const featuredProducts: Product[] = [
-  { id: "fb-1", name: "Real Madrid Home Kit", team: "Real Madrid CF", price: 4999, image: "/images/real_madrid.png", category: "football", sport: "football", description: "Royal white performance kit", stock: 100, rating: 5 },
-  { id: "fb-2", name: "Arsenal Away Kit", team: "Arsenal FC", price: 4499, image: "/images/arsenal.png", category: "football", sport: "football", description: "Elite away performance", stock: 80, rating: 5 },
-  { id: "bk-1", name: "Lakers City Edition", team: "LA Lakers", price: 3999, image: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800", category: "basketball", sport: "basketball", description: "Showtime basketball", stock: 50, rating: 4 },
-  { id: "cr-1", name: "India World Cup Kit", team: "Team India", price: 3499, image: "https://images.unsplash.com/photo-1431324155629-1a6eda1eed2d?w=800", category: "cricket", sport: "cricket", description: "Men in blue official gear", stock: 200, rating: 5 },
-];
+  ...getRandomProducts(PRODUCTS.filter(p => p.sport === 'football'), 3),
+  ...getRandomProducts(PRODUCTS.filter(p => p.sport === 'basketball'), 3),
+  ...getRandomProducts(PRODUCTS.filter(p => p.sport === 'cricket'), 3),
+].sort(() => 0.5 - Math.random());
 
 const sectionReveal = {
   hidden: { opacity: 0, y: 50 },

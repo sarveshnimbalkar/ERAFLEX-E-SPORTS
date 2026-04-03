@@ -7,8 +7,8 @@ import { Footer } from "@/components/shared/Footer";
 import { PoseTryOnExperience } from "@/components/try-on/PoseTryOnExperience";
 
 const AVAILABLE_KITS = [
-  { id: 'home', name: 'Home Kit (White)', image: '/images/real_madrid.png', fallbackColor: 'bg-white/80 mix-blend-overlay' },
-  { id: 'away', name: 'Away Kit (Dark)', image: '/images/barcelona.png', fallbackColor: 'bg-black/80 mix-blend-multiply' }
+  { id: 'fb-1', name: 'Real Madrid Home Kit', image: '/kits/fb-1.jpg', fallbackColor: 'bg-white/80 mix-blend-overlay' },
+  { id: 'fb-6', name: 'PSG Home Kit', image: '/kits/fb-6.png', fallbackColor: 'bg-black/80 mix-blend-multiply' }
 ];
 
 export default function TryOnPage() {

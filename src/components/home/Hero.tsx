@@ -6,10 +6,10 @@ import Link from "next/link";
 import { ArrowRight, Box } from "lucide-react";
 
 const JERSEYS = [
-  { src: "/images/real_madrid.png", line1: "REAL",   line2: "MADRID", tag: "LA LIGA", color: "#c0a050" },
-  { src: "/images/barcelona.png",   line1: "BARÇA",  line2: "KIT",    tag: "LA LIGA", color: "#a50044" },
-  { src: "/images/india.png",       line1: "TEAM",   line2: "INDIA",  tag: "CRICKET", color: "#0033a0" },
-  { src: "/images/lakers.png",      line1: "LAKERS", line2: "CITY",   tag: "NBA",     color: "#552583" },
+  { src: "/kits/fb-1.jpg", line1: "REAL",   line2: "MADRID", tag: "LA LIGA", color: "#c0a050" },
+  { src: "/kits/fb-3.png",   line1: "BARÇA",  line2: "KIT",    tag: "LA LIGA", color: "#a50044" },
+  { src: "/kits/cr-1.jpg",       line1: "TEAM",   line2: "INDIA",  tag: "CRICKET", color: "#0033a0" },
+  { src: "/kits/bk-1.png",      line1: "LAKERS", line2: "CITY",   tag: "NBA",     color: "#552583" },
 ];
 
 export const Hero = () => {

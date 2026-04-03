@@ -560,7 +560,7 @@ export default function CheckoutPage() {
 
                         {/* Manual UPI Interface */}
 {paymentMethod === "upi" && (
-  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 relative">
     <div className="bg-black/40 border border-white/10 rounded-2xl p-6 flex flex-col items-center text-center">
       <h3 className="font-display text-xl italic uppercase mb-2">Scan & Pay</h3>
       <p className="text-xs text-gray-400 font-indian tracking-widest mb-6">
@@ -578,7 +578,7 @@ export default function CheckoutPage() {
       <p className="text-xs text-gray-500 font-indian">Scan with any UPI app</p>
     </div>
 
-    <div className="space-y-3">
+    <div className="space-y-3 pb-24 md:pb-0">
       <label className="text-xs font-indian tracking-widest text-gray-400 uppercase">
         Enter 12-Digit Transaction ID (UTR) <span className="text-brand-accent">*</span>
       </label>
@@ -591,17 +591,19 @@ export default function CheckoutPage() {
       />
     </div>
 
-    <button
-      onClick={() => handlePlaceOrder()}
-      disabled={loading || !upiTransactionId}
-      className="w-full bg-brand-accent py-5 font-black text-2xl tracking-widest rounded-md hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed uppercase"
-    >
-      {loading ? (
-        <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
-      ) : (
-        "CONFIRM PAYMENT"
-      )}
-    </button>
+    <div className="fixed bottom-0 inset-x-0 p-4 bg-brand-dark/95 backdrop-blur-md border-t border-white/10 z-50 md:relative md:p-0 md:bg-transparent md:border-t-0 hover:z-50 shadow-2xl md:shadow-none">
+      <button
+        onClick={() => handlePlaceOrder()}
+        disabled={loading || !upiTransactionId}
+        className="w-full bg-brand-accent py-5 font-black text-2xl tracking-widest rounded-md hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed uppercase shadow-[0_0_20px_rgba(225,29,72,0.3)] md:shadow-none"
+      >
+        {loading ? (
+          <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
+        ) : (
+          "CONFIRM PAYMENT"
+        )}
+      </button>
+    </div>
   </div>
 )}
 
@@ -614,20 +616,22 @@ export default function CheckoutPage() {
                                   Our delivery partner will collect the payment.
                                 </p>
                              </div>
-                             <button
-                                onClick={() => handlePlaceOrder()}
-                                disabled={loading}
-                                className="w-full bg-brand-gold py-5 font-black text-2xl tracking-widest text-black rounded-md hover:bg-white transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed uppercase"
-                              >
-                                {loading ? (
-                                  <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                                ) : (
-                                  <>
-                                    <Banknote className="w-6 h-6" />
-                                    CONFIRM COD ORDER (₹{grandTotal.toLocaleString()})
-                                  </>
-                                )}
-                              </button>
+                             <div className="fixed bottom-0 inset-x-0 p-4 bg-brand-dark/95 backdrop-blur-md border-t border-white/10 z-50 md:relative md:p-0 md:bg-transparent md:border-t-0 hover:z-50 shadow-2xl md:shadow-none">
+                               <button
+                                  onClick={() => handlePlaceOrder()}
+                                  disabled={loading}
+                                  className="w-full bg-brand-gold py-5 font-black text-2xl tracking-widest text-black rounded-md hover:bg-white transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed uppercase shadow-[0_0_20px_rgba(255,170,0,0.3)] md:shadow-none"
+                                >
+                                  {loading ? (
+                                    <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                                  ) : (
+                                    <>
+                                      <Banknote className="w-6 h-6" />
+                                      CONFIRM COD ORDER
+                                    </>
+                                  )}
+                                </button>
+                             </div>
                           </div>
                         )}
                       </div>

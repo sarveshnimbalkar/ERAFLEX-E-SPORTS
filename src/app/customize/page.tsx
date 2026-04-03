@@ -5,6 +5,7 @@ import { Header } from "@/components/shared/Header";
 import { Footer } from "@/components/shared/Footer";
 import { ProtectedRoute } from "@/components/shared/ProtectedRoute";
 import { Check, Type, Hash, Palette, ShoppingBag } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/useCartStore";
 import toast from "react-hot-toast";
 
@@ -79,28 +80,37 @@ export default function CustomizePage() {
 
                 {/* Dynamic Text Overlay Platform */}
                 <div className="relative z-10 flex flex-col items-center mt-[-10%] w-full">
-                  <span 
-                    className={`text-3xl md:text-5xl lg:text-6xl transition-all duration-300 drop-shadow-sm ${selectedFont.class}`}
-                    style={{ 
-                      color: selectedColor.value,
-                      // Subtle perspective transform to map it to imaginary shoulders
-                      transform: 'perspective(500px) rotateX(5deg)',
-                      WebkitTextStroke: selectedColor.value === '#111111' && jerseyType === 'away' ? '1px rgba(255,255,255,0.2)' : 'none'
-                    }}
-                  >
-                    {jerseyName || "NAME"}
-                  </span>
+                  <AnimatePresence mode="popLayout">
+                    <motion.span 
+                      key={jerseyName + selectedFont.name}
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      className={`text-3xl md:text-5xl lg:text-6xl drop-shadow-sm ${selectedFont.class}`}
+                      style={{ 
+                        color: selectedColor.value,
+                        transform: 'perspective(500px) rotateX(5deg)',
+                        WebkitTextStroke: selectedColor.value === '#111111' && jerseyType === 'away' ? '1px rgba(255,255,255,0.2)' : 'none'
+                      }}
+                    >
+                      {jerseyName || "NAME"}
+                    </motion.span>
+                  </AnimatePresence>
                   
-                  <span 
-                    className={`text-[150px] md:text-[220px] lg:text-[280px] leading-none transition-all duration-300 mt-2 ${selectedFont.class}`}
-                    style={{ 
-                      color: selectedColor.value,
-                      transform: 'scaleY(1.1) perspective(500px) rotateX(2deg)',
-                      WebkitTextStroke: selectedColor.value === '#111111' && jerseyType === 'away' ? '1px rgba(255,255,255,0.2)' : 'none'
-                    }}
-                  >
-                    {jerseyNumber || "00"}
-                  </span>
+                  <AnimatePresence mode="popLayout">
+                    <motion.span 
+                      key={jerseyNumber + selectedFont.name}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className={`text-[150px] md:text-[220px] lg:text-[280px] leading-none mt-2 ${selectedFont.class}`}
+                      style={{ 
+                        color: selectedColor.value,
+                        transform: 'scaleY(1.1) perspective(500px) rotateX(2deg)',
+                        WebkitTextStroke: selectedColor.value === '#111111' && jerseyType === 'away' ? '1px rgba(255,255,255,0.2)' : 'none'
+                      }}
+                    >
+                      {jerseyNumber || "00"}
+                    </motion.span>
+                  </AnimatePresence>
                 </div>
               </div>
             </div>

@@ -181,11 +181,11 @@ body {
   background: #0a0a0a;
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #e11d48, #7c3aed);
+  background: var(--white-10);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #e11d48;
+  background: var(--white-5);
 }
 
 /* ─── No Scrollbar Utility ─── */

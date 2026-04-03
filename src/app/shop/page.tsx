@@ -6,105 +6,7 @@ import { ProductGrid } from "@/components/shop/ProductGrid";
 import { ReviewSection } from "@/components/shop/ReviewSection";
 import type { Product } from "@/types";
 
-// Static data for now, would be fetched from Firestore in a later phase
-const initialProducts: Product[] = [
-  {
-    id: "fb-1",
-    name: "Real Madrid Home Kit 24/25",
-    team: "Real Madrid CF",
-    price: 4999,
-    image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600",
-    category: "football",
-    sport: "football",
-    description: "Royal white performance kit",
-    stock: 100,
-    rating: 5,
-  },
-  {
-    id: "fb-2",
-    name: "Manchester City Home Kit 24/25",
-    team: "Manchester City",
-    price: 4499,
-    image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600",
-    category: "football",
-    sport: "football",
-    description: "City blue dominance",
-    stock: 80,
-    rating: 4,
-  },
-  {
-    id: "cr-1",
-    name: "India World Cup Jersey",
-    team: "Team India",
-    price: 2999,
-    image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=600",
-    category: "cricket",
-    sport: "cricket",
-    description: "Official India world cup edition",
-    stock: 200,
-    rating: 5,
-  },
-  {
-    id: "bk-1",
-    name: "Lakers Icon Edition",
-    team: "LA Lakers",
-    price: 5999,
-    image: "https://images.unsplash.com/photo-1515523110800-9415d13b84a8?w=600",
-    category: "basketball",
-    sport: "basketball",
-    description: "Iconic purple and gold",
-    stock: 40,
-    rating: 5,
-  },
-  {
-    id: "fb-3",
-    name: "FC Barcelona Home Kit 24/25",
-    team: "FC Barcelona",
-    price: 4799,
-    image: "https://images.unsplash.com/photo-1431324155629-1a6eda1eedfa?w=600",
-    category: "football",
-    sport: "football",
-    description: "Blaugrana pride",
-    stock: 70,
-    rating: 4,
-  },
-  {
-    id: "fb-4",
-    name: "Arsenal FC Home Kit 24/25",
-    team: "Arsenal FC",
-    price: 4299,
-    image: "https://images.unsplash.com/photo-1519315901367-f34ff9154487?w=600",
-    category: "football",
-    sport: "football",
-    description: "Gunners elite threads",
-    stock: 90,
-    rating: 5,
-  },
-  {
-    id: "fb-5",
-    name: "PSG Home Kit 24/25",
-    team: "Paris Saint-Germain",
-    price: 5299,
-    image: "https://images.unsplash.com/photo-1522770179533-24471fcdba45?w=600",
-    category: "football",
-    sport: "football",
-    description: "Parisian elegance",
-    stock: 60,
-    rating: 4,
-  },
-  {
-    id: "fb-6",
-    name: "AC Milan Home Kit 24/25",
-    team: "AC Milan",
-    price: 3999,
-    image: "https://images.unsplash.com/photo-1541534741688-6078c64b5913?w=600",
-    category: "football",
-    sport: "football",
-    description: "Rossoneri tradition",
-    stock: 50,
-    rating: 5,
-  },
-];
+import { PRODUCTS } from "@/lib/data/products";
 
 export default function Shop() {
   return (
@@ -121,7 +23,7 @@ export default function Shop() {
           </p>
         </header>
 
-        <ProductGrid initialProducts={initialProducts} />
+        <ProductGrid initialProducts={PRODUCTS} />
 
         {/* Review Section */}
         <div className="bg-brand-surface p-6 md:p-10 rounded-md border border-white/5 shadow-xl">

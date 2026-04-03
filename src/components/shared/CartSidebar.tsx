@@ -29,7 +29,7 @@ export const CartSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () 
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-y-0 right-0 w-full md:w-[500px] bg-brand-dark/95 backdrop-blur-xl border-l border-white/10 z-[101] flex flex-col shadow-2xl"
+            className="fixed inset-y-0 right-0 h-[100dvh] w-full md:w-[500px] bg-brand-dark/95 backdrop-blur-xl border-l border-white/10 z-[101] flex flex-col shadow-2xl"
           >
             {/* Header */}
             <div className="flex justify-between items-center px-8 md:px-10 py-10 flex-shrink-0">
