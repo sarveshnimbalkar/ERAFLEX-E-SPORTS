@@ -567,14 +567,16 @@ export default function CheckoutPage() {
         Amount to pay: <span className="text-brand-accent font-bold">₹{grandTotal.toLocaleString()}</span>
       </p>
       
-      {/* TODO: Add your actual QR code image here */}
-      <div className="w-48 h-48 bg-white rounded-xl mb-4 p-2 flex items-center justify-center">
-        <div className="border-4 border-dashed border-gray-300 w-full h-full flex items-center justify-center text-gray-400 font-bold text-sm">
-          [QR CODE HERE]
-        </div>
+      <div className="w-48 h-48 bg-white rounded-xl mb-4 p-2 flex items-center justify-center overflow-hidden">
+        <img 
+          src="/images/upi-qr.png" 
+          alt="Scan to pay via UPI" 
+          className="w-full h-full object-contain"
+        />
       </div>
-      
-      <p className="text-sm font-bold tracking-wider mb-1">your-upi-id@bank</p>
+
+{/* Be sure to change this text to your actual UPI ID! */}
+<p className="text-sm font-bold tracking-wider mb-1">a.sujay.kulkarni.work@oksbi</p>
       <p className="text-xs text-gray-500 font-indian">Scan with any UPI app</p>
     </div>
 
