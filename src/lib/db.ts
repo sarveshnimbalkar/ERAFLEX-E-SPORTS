@@ -154,7 +154,7 @@ export const reviewService = {
     const orders = snap.docs.map(doc => doc.data() as Order);
     
     return orders.some(order => 
-      order.items.some(item => item.productId === productId)
+      Array.isArray(order.items) && order.items.some(item => item.productId === productId)
     );
   },
 
@@ -294,13 +294,15 @@ export const analyticsService = {
       if (order.paymentMethod === "cod") codOrders++;
       else stripeOrders++;
 
-      order.items?.forEach((item) => {
-        if (!productSales[item.productId]) {
-          productSales[item.productId] = { name: item.name, sold: 0, revenue: 0 };
-        }
-        productSales[item.productId].sold += item.quantity;
-        productSales[item.productId].revenue += item.price * item.quantity;
-      });
+      if (Array.isArray(order.items)) {
+        order.items.forEach((item) => {
+          if (!productSales[item.productId]) {
+            productSales[item.productId] = { name: item.name, sold: 0, revenue: 0 };
+          }
+          productSales[item.productId].sold += item.quantity;
+          productSales[item.productId].revenue += item.price * item.quantity;
+        });
+      }
     });
 
     const sortedDays = Object.keys(revenueByDay).sort().slice(-7);

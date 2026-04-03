@@ -45,9 +45,16 @@ NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 # Stripe
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_key
 STRIPE_SECRET_KEY=sk_test_your_key
+
+# Email (Welcome emails)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your_smtp_username
+EMAIL_PASS=your_smtp_password_or_app_password
+EMAIL_FROM="ERAFLEX E-SPORTS <your_smtp_username>"
 ```
 
-> 🔒 **Ask the project lead** for the actual Firebase and Stripe keys.  
+> 🔒 **Ask the project lead** for the actual Firebase, Stripe, and email SMTP credentials.  
 > ⚠️ **Never commit** `.env.local` to git (it's already in `.gitignore`).
 
 ### 4. Start the Dev Server

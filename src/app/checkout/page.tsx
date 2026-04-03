@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/useCartStore";
 import { useUserStore } from "@/store/useUserStore";
@@ -50,6 +50,42 @@ export default function CheckoutPage() {
 
   const SHIPPING_CHARGES = total >= 2000 ? 0 : 99;
   const grandTotal = total + SHIPPING_CHARGES;
+  const [hasHydrated, setHasHydrated] = useState(() => {
+    return typeof window !== "undefined" ? !!useCartStore.persist?.hasHydrated?.() : false;
+  });
+
+  useEffect(() => {
+    if (useCartStore.persist?.hasHydrated?.()) {
+      setHasHydrated(true);
+      return;
+    }
+
+    const unsub = useCartStore.persist?.onFinishHydration?.(() => {
+      setHasHydrated(true);
+    });
+
+    return () => {
+      unsub?.();
+    };
+  }, []);
+
+  if (!hasHydrated) {
+    return (
+      <main className="min-h-screen pt-28 pb-20 px-4 md:px-6 bg-brand-dark">
+        <Header />
+        <div className="max-w-7xl mx-auto space-y-8 animate-pulse">
+          <div className="h-10 w-72 bg-white/5 rounded" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+              <div className="h-80 bg-white/5 rounded-3xl" />
+              <div className="h-96 bg-white/5 rounded-3xl" />
+            </div>
+            <div className="h-96 bg-white/5 rounded-3xl" />
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   const updateShipping = (field: keyof ShippingAddress, value: string) => {
     setShipping((prev) => ({ ...prev, [field]: value }));

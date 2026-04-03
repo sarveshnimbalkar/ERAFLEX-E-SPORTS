@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X } from "lucide-react";
 import { ProductCard } from "./ProductCard";
@@ -15,6 +15,7 @@ export const ProductGrid = ({ initialProducts }: ProductGridProps) => {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [maxPrice] = useState<number>(10000);
   const [sortBy, setSortBy] = useState<string>("default");
+  const deferredSearch = useDeferredValue(search);
 
   const categories = ["all", "football", "cricket", "basketball"];
 
@@ -22,8 +23,8 @@ export const ProductGrid = ({ initialProducts }: ProductGridProps) => {
     return initialProducts
       .filter((p) => {
         const matchesSearch =
-          p.name.toLowerCase().includes(search.toLowerCase()) ||
-          (p.team?.toLowerCase().includes(search.toLowerCase()) ?? false);
+          p.name.toLowerCase().includes(deferredSearch.toLowerCase()) ||
+          (p.team?.toLowerCase().includes(deferredSearch.toLowerCase()) ?? false);
         const matchesCategory =
           activeCategory === "all" || p.category === activeCategory;
         const matchesPrice = p.price <= maxPrice;
@@ -35,7 +36,7 @@ export const ProductGrid = ({ initialProducts }: ProductGridProps) => {
         if (sortBy === "rating") return (b.rating || 0) - (a.rating || 0);
         return 0;
       });
-  }, [initialProducts, search, activeCategory, maxPrice, sortBy]);
+  }, [initialProducts, deferredSearch, activeCategory, maxPrice, sortBy]);
 
   return (
     <div className="space-y-8 md:space-y-12">

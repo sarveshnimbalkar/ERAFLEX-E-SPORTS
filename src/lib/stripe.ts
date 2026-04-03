@@ -1,6 +1,7 @@
 import { loadStripe } from '@stripe/stripe-js';
+import { clientEnv } from '@/lib/clientEnv';
 
 // Public key - should be in .env.local
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+const stripePromise = loadStripe(clientEnv.stripePublishableKey);
 
 export default stripePromise;

@@ -15,8 +15,8 @@ export const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
     // Scene setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
+    const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, powerPreference: "high-performance" });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(window.innerWidth, window.innerHeight);
     containerRef.current.appendChild(renderer.domElement);
 
@@ -25,7 +25,7 @@ export const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
     scene.add(group);
 
     // Central core (TorusKnot)
-    const coreGeometry = new THREE.TorusKnotGeometry(1.5, 0.4, 128, 32);
+    const coreGeometry = new THREE.TorusKnotGeometry(1.5, 0.4, 64, 16);
     const coreMaterial = new THREE.MeshStandardMaterial({
       color: 0xff0033,
       wireframe: true,
@@ -38,20 +38,20 @@ export const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
     group.add(core);
 
     // Outer rings
-    const ringGeometry1 = new THREE.RingGeometry(3, 3.2, 64);
+    const ringGeometry1 = new THREE.RingGeometry(3, 3.2, 32);
     const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.2 });
     const ring1 = new THREE.Mesh(ringGeometry1, ringMaterial);
     ring1.rotation.x = Math.PI / 2;
     group.add(ring1);
 
-    const ringGeometry2 = new THREE.RingGeometry(4, 4.1, 64);
+    const ringGeometry2 = new THREE.RingGeometry(4, 4.1, 32);
     const ring2 = new THREE.Mesh(ringGeometry2, ringMaterial);
     ring2.rotation.y = Math.PI / 2;
     group.add(ring2);
 
     // Particles
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 2000;
+    const particlesCount = 500;
     const posArray = new Float32Array(particlesCount * 3);
     for(let i = 0; i < particlesCount * 3; i++) {
         posArray[i] = (Math.random() - 0.5) * 15;
@@ -80,9 +80,10 @@ export const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
 
     // Animation phases
     let frame = 0;
+    let animationFrameId = 0;
     const animate = () => {
       frame++;
-      const id = requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
       
       core.rotation.x += 0.005;
       core.rotation.y += 0.01;
@@ -129,7 +130,19 @@ export const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      cancelAnimationFrame(animationFrameId);
+      coreGeometry.dispose();
+      coreMaterial.dispose();
+      ringGeometry1.dispose();
+      ringGeometry2.dispose();
+      ringMaterial.dispose();
+      particlesGeometry.dispose();
+      particlesMaterial.dispose();
+      scene.clear();
       renderer.dispose();
+      if (containerRef.current?.contains(renderer.domElement)) {
+        containerRef.current.removeChild(renderer.domElement);
+      }
       clearInterval(interval);
       // Removed clear since it can error on unmount
     };

@@ -1,17 +1,26 @@
 import nodemailer from "nodemailer";
+import { hasEmailCredentials, serverEnv } from "@/lib/server/env";
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // NODEMAILER TRANSPORTER
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || "smtp.gmail.com",
-  port: Number(process.env.EMAIL_PORT) || 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+const smtpHost = serverEnv.emailHost;
+const smtpPort = serverEnv.emailPort;
+const smtpUser = serverEnv.emailUser;
+const smtpPass = serverEnv.emailPass;
+const smtpFrom = serverEnv.emailFrom;
+
+const transporter = hasEmailCredentials
+  ? nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465,
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
+    })
+  : null;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // WELCOME EMAIL TEMPLATE
@@ -281,8 +290,16 @@ export async function sendWelcomeEmail(
   userEmail: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const websiteLink = process.env.NEXT_PUBLIC_WEBSITE_URL || "http://localhost:3000";
-    const fromAddress = process.env.EMAIL_FROM || `ERAFLEX E-SPORTS <${process.env.EMAIL_USER}>`;
+    if (!transporter) {
+      return {
+        success: false,
+        error:
+          "Email is not configured. Set EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS, and optionally EMAIL_FROM in .env.local.",
+      };
+    }
+
+    const websiteLink = serverEnv.websiteUrl;
+    const fromAddress = smtpFrom || `ERAFLEX E-SPORTS <${smtpUser}>`;
 
     const mailOptions = {
       from: fromAddress,
@@ -291,11 +308,13 @@ export async function sendWelcomeEmail(
       html: getWelcomeEmailHTML(userName, websiteLink),
     };
 
+    await transporter.verify();
     await transporter.sendMail(mailOptions);
     console.log(`✅ Welcome email sent to ${userEmail}`);
     return { success: true };
-  } catch (error: any) {
-    console.error(`❌ Failed to send welcome email to ${userEmail}:`, error.message);
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown email error";
+    console.error(`❌ Failed to send welcome email to ${userEmail}:`, message);
+    return { success: false, error: message };
   }
 }

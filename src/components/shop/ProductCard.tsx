@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { memo, useRef, useState } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ShoppingCart, Star, Heart, Eye } from "lucide-react";
 import type { Product } from "@/types";
@@ -15,7 +15,7 @@ interface ProductCardProps {
   product: Product;
 }
 
-export const ProductCard = ({ product }: ProductCardProps) => {
+export const ProductCard = memo(({ product }: ProductCardProps) => {
   const addItem = useCartStore((state) => state.addItem);
   const { user } = useUserStore();
   const [wishlisted, setWishlisted] = useState(false);
@@ -261,4 +261,6 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       </div>
     </motion.div>
   );
-};
+});
+
+ProductCard.displayName = "ProductCard";

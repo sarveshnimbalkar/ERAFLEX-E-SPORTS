@@ -25,7 +25,6 @@ const rajdhani = Rajdhani({
 import { FirebaseAuthProvider } from "@/components/shared/FirebaseAuthProvider";
 import { FloatingChat } from "@/components/shared/FloatingChat";
 import { ToastProvider } from "@/components/shared/ToastProvider";
-import { SmoothScroll } from "@/components/shared/SmoothScroll";
 
 export const metadata: Metadata = {
   title: {
@@ -49,12 +48,8 @@ export default function RootLayout({
       >
         <FirebaseAuthProvider>
           <ToastProvider />
-          <SmoothScroll>
-            <div className="contents">
-              <FloatingChat />
-            </div>
-            {children}
-          </SmoothScroll>
+          <FloatingChat />
+          {children}
         </FirebaseAuthProvider>
       </body>
     </html>

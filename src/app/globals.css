@@ -16,8 +16,6 @@ body {
   color: #ffffff;
   background-color: #0a0a0a;
   overflow-x: hidden;
-  contain: layout style paint;
-  will-change: scroll-position;
 }
 
 /* ─── Glass utility ─── */
@@ -235,8 +233,8 @@ textarea:focus {
 }
 
 /* ─── Smooth Scroll ─── */
-* {
-  scroll-behavior: smooth;
+html {
+  scroll-behavior: auto;
 }
 
 /* ─── Responsive text scaling ─── */

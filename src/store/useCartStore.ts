@@ -1,14 +1,14 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { Product, CartItem } from '@/types';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { Product, CartItem } from "@/types";
 
 interface CartStore {
     items: CartItem[];
+    total: number;
     addItem: (product: Product) => void;
     removeItem: (productId: string) => void;
     updateQuantity: (productId: string, quantity: number) => void;
     clearCart: () => void;
-    total: number;
 }
 
 export const useCartStore = create<CartStore>()(
@@ -22,9 +22,7 @@ export const useCartStore = create<CartStore>()(
 
                 if (existingItem) {
                     const newItems = items.map((item) =>
-                        item.id === product.id
-                            ? { ...item, quantity: item.quantity + 1 }
-                            : item
+                        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
                     );
                     set({ items: newItems, total: calculateTotal(newItems) });
                 } else {
@@ -49,7 +47,8 @@ export const useCartStore = create<CartStore>()(
             clearCart: () => set({ items: [], total: 0 }),
         }),
         {
-            name: 'eraflex-cart',
+            name: "eraflex-cart",
+            partialize: (state) => ({ items: state.items, total: state.total }),
         }
     )
 );

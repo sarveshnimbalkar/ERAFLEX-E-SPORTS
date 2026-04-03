@@ -275,10 +275,20 @@ export default function AuthPage() {
 
             <div className="flex justify-center gap-4">
               <button 
+                type="button"
                 onClick={handleGoogleSignIn}
                 className="w-full py-4 rounded-xl border border-white/10 flex items-center justify-center gap-3 hover:bg-white hover:text-black transition-all duration-500 hover-trigger"
               >
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/pwa_logo_96.png" className="w-5 h-5 grayscale group-hover:grayscale-0" alt="Google" />
+                <svg
+                  className="w-5 h-5 shrink-0"
+                  viewBox="0 0 48 48"
+                  aria-hidden="true"
+                >
+                  <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.654 32.658 29.358 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.087 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.651-.389-3.917z" />
+                  <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 16.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.087 6.053 29.268 4 24 4c-7.682 0-14.374 4.337-17.694 10.691z" />
+                  <path fill="#4CAF50" d="M24 44c5.172 0 9.918-1.979 13.49-5.207l-6.223-5.246C29.193 35.091 26.715 36 24 36c-5.337 0-9.618-3.322-11.287-7.946l-6.522 5.03C9.474 39.556 16.227 44 24 44z" />
+                  <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-1.341 3.796-4.079 6.711-7.025 8.547l.002-.001 6.223 5.246C33.656 41.196 40 36 40 24c0-1.341-.138-2.651-.389-3.917z" />
+                </svg>
                 <span className="font-bold text-sm tracking-widest">GOOGLE</span>
               </button>
             </div>

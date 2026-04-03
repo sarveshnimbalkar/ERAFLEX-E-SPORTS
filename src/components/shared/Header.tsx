@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingBag, User as UserIcon, Menu, X } from "lucide-react";
@@ -15,26 +15,38 @@ export const Header = () => {
   const [isHidden, setIsHidden] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  
+
   const cartItemsCount = useCartStore((state) => state.items.length);
   const { user } = useUserStore();
   const pathname = usePathname();
 
-  // Smart Scroll Tracking (Awwwards Style)
-  const { scrollY } = useScroll();
-  
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    const previous = scrollY.getPrevious() ?? 0;
-    
-    // Hide header when scrolling DOWN, but show it if we scroll UP
-    if (latest > previous && latest > 150) {
-      setIsHidden(true);
-    } else {
-      setIsHidden(false);
-    }
-    
-    setIsScrolled(latest > 50);
-  });
+  useEffect(() => {
+    let rafId = 0;
+    let previousScrollY = window.scrollY;
+
+    const updateHeaderState = () => {
+      const currentScrollY = window.scrollY;
+      const scrollingDown = currentScrollY > previousScrollY;
+
+      setIsHidden(scrollingDown && currentScrollY > 150);
+      setIsScrolled(currentScrollY > 50);
+      previousScrollY = currentScrollY;
+      rafId = 0;
+    };
+
+    const onScroll = () => {
+      if (rafId) return;
+      rafId = window.requestAnimationFrame(updateHeaderState);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    updateHeaderState();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (rafId) window.cancelAnimationFrame(rafId);
+    };
+  }, []);
 
   const navLinks = [
     { name: "Home", href: "/" },

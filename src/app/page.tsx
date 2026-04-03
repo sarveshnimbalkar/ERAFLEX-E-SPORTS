@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Zap, ArrowRight } from "lucide-react";
@@ -9,9 +10,13 @@ import { Header } from "@/components/shared/Header";
 import { Footer } from "@/components/shared/Footer";
 import { Hero } from "@/components/home/Hero";
 import { RecommendedProducts } from "@/components/shared/RecommendedProducts";
-import { LoadingScreen } from "@/components/shared/LoadingScreen";
 import { Testimonials } from "@/components/home/Testimonials";
 import type { Product } from "@/types";
+
+const LoadingScreen = dynamic(
+  () => import("@/components/shared/LoadingScreen").then((module) => module.LoadingScreen),
+  { ssr: false }
+);
 
 const featuredProducts: Product[] = [
   { id: "fb-1", name: "Real Madrid Home Kit", team: "Real Madrid CF", price: 4999, image: "/images/real_madrid.png", category: "football", sport: "football", description: "Royal white performance kit", stock: 100, rating: 5 },
@@ -38,6 +43,17 @@ const stats = [
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const seenKey = "eraflex-home-loader-seen";
+
+    if (sessionStorage.getItem(seenKey) === "1") {
+      setIsLoading(false);
+      return;
+    }
+
+    sessionStorage.setItem(seenKey, "1");
+  }, []);
 
   return (
     <main className="relative min-h-screen bg-brand-dark">
