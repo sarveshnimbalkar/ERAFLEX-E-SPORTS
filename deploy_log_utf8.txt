@@ -1,0 +1,7 @@
+﻿
+[1m[37m===[39m Deploying to 'eraflex-e-sports'...[22m
+
+[36m[1mi [22m[39m deploying [1mhosting[22m
+[36m[1mi  hosting[eraflex-e-sports]:[22m[39m beginning deploy...
+
+[1m[31mError:[39m[22m Directory 'dist' for Hosting does not exist.
