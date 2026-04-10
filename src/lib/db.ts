@@ -69,8 +69,11 @@ export const orderService = {
     stripePaymentId?: string;
     upiTransactionId?: string;
   }): Promise<string> {
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(([_, v]) => v !== undefined)
+    );
     const docRef = await addDoc(collection(db, "orders"), {
-      ...data,
+      ...cleanData,
       orderStatus: "Processing" as OrderStatus,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),

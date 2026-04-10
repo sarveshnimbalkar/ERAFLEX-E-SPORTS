@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { ProductCard } from "@/components/shop/ProductCard";
 import type { Product } from "@/types";
 import { Sparkles } from "lucide-react";
@@ -36,17 +35,10 @@ export const RecommendedProducts = ({
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {products.slice(0, 4).map((product, index) => (
-          <motion.div
-            key={product.id}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <ProductCard product={product} />
-          </motion.div>
+      {/* Grid — ProductCard handles its own whileInView entrance animation */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        {products.slice(0, 4).map((product) => (
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
     </section>

@@ -1,193 +1,221 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import * as THREE from "three";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+const LETTERS_ERA = ["E", "R", "A"];
+const LETTERS_FLEX = ["F", "L", "E", "X"];
+
+const LOADING_STEPS = [
+  "CALIBRATING 3D ASSETS...",
+  "OPTIMIZING GRAPHICS...",
+  "SIMULATING PHYSICS...",
+  "ERAFLEX SYSTEM READY.",
+];
+
 export const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [loadingText, setLoadingText] = useState("INITIALIZING ENGINE...");
-  const [localIsDone, setLocalIsDone] = useState(false);
+  const [step, setStep] = useState(0);
+  const [barDone, setBarDone] = useState(false);
 
+  // Progress through loading text steps
   useEffect(() => {
-    if (!containerRef.current) return;
+    const timers: ReturnType<typeof setTimeout>[] = [];
 
-    // Scene setup
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, powerPreference: "high-performance" });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    containerRef.current.appendChild(renderer.domElement);
-
-    // Create an intricate 3D structure
-    const group = new THREE.Group();
-    scene.add(group);
-
-    // Central core (TorusKnot)
-    const coreGeometry = new THREE.TorusKnotGeometry(1.5, 0.4, 64, 16);
-    const coreMaterial = new THREE.MeshStandardMaterial({
-      color: 0xff0033,
-      wireframe: true,
-      emissive: 0xff0033,
-      emissiveIntensity: 0.8,
-      transparent: true,
-      opacity: 0.8
+    LOADING_STEPS.forEach((_, i) => {
+      timers.push(
+        setTimeout(() => setStep(i), i * 700 + 400)
+      );
     });
-    const core = new THREE.Mesh(coreGeometry, coreMaterial);
-    group.add(core);
 
-    // Outer rings
-    const ringGeometry1 = new THREE.RingGeometry(3, 3.2, 32);
-    const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.2 });
-    const ring1 = new THREE.Mesh(ringGeometry1, ringMaterial);
-    ring1.rotation.x = Math.PI / 2;
-    group.add(ring1);
+    // Mark bar animation complete
+    timers.push(setTimeout(() => setBarDone(true), 3200));
 
-    const ringGeometry2 = new THREE.RingGeometry(4, 4.1, 32);
-    const ring2 = new THREE.Mesh(ringGeometry2, ringMaterial);
-    ring2.rotation.y = Math.PI / 2;
-    group.add(ring2);
+    // Fire exit
+    timers.push(setTimeout(() => onComplete(), 3800));
 
-    // Particles
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 500;
-    const posArray = new Float32Array(particlesCount * 3);
-    for(let i = 0; i < particlesCount * 3; i++) {
-        posArray[i] = (Math.random() - 0.5) * 15;
-    }
-    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    const particlesMaterial = new THREE.PointsMaterial({
-        size: 0.02,
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0.5
-    });
-    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-    scene.add(particlesMesh);
-
-    // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-    const pointLight = new THREE.PointLight(0xff0033, 3);
-    pointLight.position.set(5, 5, 5);
-    scene.add(pointLight);
-
-    camera.position.z = 6;
-
-    // Fast spin state
-    let ending = false;
-
-    // Animation phases
-    let frame = 0;
-    let animationFrameId = 0;
-    const animate = () => {
-      frame++;
-      animationFrameId = requestAnimationFrame(animate);
-      
-      core.rotation.x += 0.005;
-      core.rotation.y += 0.01;
-      
-      ring1.rotation.z += 0.002;
-      ring2.rotation.z -= 0.003;
-      
-      particlesMesh.rotation.y = -0.0005 * frame;
-      
-      // Fast spin when ending
-      if (ending) {
-          group.scale.multiplyScalar(0.95);
-          group.rotation.y += 0.1;
-          camera.position.z += 0.1;
-      }
-      
-      renderer.render(scene, camera);
-    };
-    animate();
-
-    const texts = ["CALIBRATING 3D ASSETS...", "OPTIMIZING GRAPHICS...", "SIMULATING PHYSICS...", "ERAFLEX SYSTEM READY."];
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < texts.length) {
-        setLoadingText(texts[i]);
-        i++;
-      }
-      if (i === texts.length) {
-        clearInterval(interval);
-        setLocalIsDone(true);
-        ending = true;
-        setTimeout(() => {
-          onComplete();
-        }, 1000); // Delay for out-animation
-      }
-    }, 800); // Faster transitions
-
-    const handleResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    };
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      cancelAnimationFrame(animationFrameId);
-      coreGeometry.dispose();
-      coreMaterial.dispose();
-      ringGeometry1.dispose();
-      ringGeometry2.dispose();
-      ringMaterial.dispose();
-      particlesGeometry.dispose();
-      particlesMaterial.dispose();
-      scene.clear();
-      renderer.dispose();
-      if (containerRef.current?.contains(renderer.domElement)) {
-        containerRef.current.removeChild(renderer.domElement);
-      }
-      clearInterval(interval);
-      // Removed clear since it can error on unmount
-    };
-  }, [onComplete]);
+    return () => timers.forEach(clearTimeout);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <motion.div
-      exit={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
-      transition={{ duration: 0.8, ease: "easeInOut" }}
-      className="fixed inset-0 z-[100] bg-brand-dark flex flex-col items-center justify-center transform-gpu"
+      exit={{ opacity: 0, scale: 1.04 }}
+      transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+      className="fixed inset-0 z-[200] bg-[#080808] flex flex-col items-center justify-center overflow-hidden"
     >
-      <div ref={containerRef} className="absolute inset-0 pointer-events-none" />
-      
-      <div className="relative z-10 flex flex-col items-center pointer-events-none mt-[20vh]">
-        <motion.div 
-          animate={{ opacity: [0.7, 1, 0.7], textShadow: ["0 0 10px #ff0033", "0 0 30px #ff0033", "0 0 10px #ff0033"] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="font-display text-7xl md:text-9xl italic mb-6 tracking-tighter"
-        >
-          ERA<span className="text-brand-accent">FLEX</span>
-        </motion.div>
-        
-        <div className="flex flex-col items-center gap-4 w-64">
-          <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden relative">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: "100%" }}
-              transition={{ duration: 3.2, ease: "easeInOut" }}
-              className="absolute top-0 left-0 h-full bg-brand-accent shadow-[0_0_10px_#ff0033]"
-            />
-          </div>
-          <AnimatePresence mode="wait">
-            <motion.span 
-              key={loadingText}
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              transition={{ duration: 0.2 }}
-              className="font-indian text-xs tracking-[0.4em] uppercase text-brand-accent/80 whitespace-nowrap"
+      {/* ── Animated scan lines ── */}
+      <motion.div
+        initial={{ scaleX: 0, opacity: 0 }}
+        animate={{ scaleX: 1, opacity: 0.06 }}
+        transition={{ duration: 1.2, ease: "easeOut" }}
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.4) 3px, rgba(255,255,255,0.4) 4px)",
+          transformOrigin: "left",
+        }}
+      />
+
+      {/* ── Left sweep line ── */}
+      <motion.div
+        initial={{ scaleY: 0 }}
+        animate={{ scaleY: 1 }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+        className="absolute left-[10%] top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-brand-accent to-transparent opacity-30"
+        style={{ transformOrigin: "top" }}
+      />
+      {/* ── Right sweep line ── */}
+      <motion.div
+        initial={{ scaleY: 0 }}
+        animate={{ scaleY: 1 }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+        className="absolute right-[10%] top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-brand-accent to-transparent opacity-30"
+        style={{ transformOrigin: "top" }}
+      />
+
+      {/* ── Horizontal top bar ── */}
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+        className="absolute top-[12%] left-[10%] right-[10%] h-px bg-white/10"
+        style={{ transformOrigin: "left" }}
+      />
+      {/* ── Horizontal bottom bar ── */}
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.25 }}
+        className="absolute bottom-[12%] left-[10%] right-[10%] h-px bg-white/10"
+        style={{ transformOrigin: "right" }}
+      />
+
+      {/* ── Corner accent dots ── */}
+      {[
+        "top-[12%] left-[10%]",
+        "top-[12%] right-[10%]",
+        "bottom-[12%] left-[10%]",
+        "bottom-[12%] right-[10%]",
+      ].map((pos, i) => (
+        <motion.div
+          key={pos}
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4 + i * 0.05, duration: 0.3 }}
+          className={`absolute ${pos} w-1.5 h-1.5 bg-brand-accent rounded-full`}
+        />
+      ))}
+
+      {/* ── Central ambient glow ── */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.5, ease: "easeOut", delay: 0.3 }}
+        className="absolute w-[500px] h-[500px] rounded-full pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(225,29,72,0.18) 0%, transparent 70%)",
+        }}
+      />
+
+      {/* ── ERA letters (from left) ── */}
+      <div className="relative z-10 flex items-baseline gap-0 select-none">
+        <div className="flex items-baseline">
+          {LETTERS_ERA.map((letter, i) => (
+            <motion.span
+              key={`era-${i}`}
+              initial={{ opacity: 0, x: -60, skewX: -15 }}
+              animate={{ opacity: 1, x: 0, skewX: 0 }}
+              transition={{
+                delay: 0.2 + i * 0.1,
+                duration: 0.7,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              className="font-display text-[clamp(4rem,14vw,10rem)] leading-none tracking-tighter text-white"
             >
-              {loadingText}
+              {letter}
             </motion.span>
-          </AnimatePresence>
+          ))}
+        </div>
+
+        {/* ── FLEX letters (from right) ── */}
+        <div className="flex items-baseline">
+          {LETTERS_FLEX.map((letter, i) => (
+            <motion.span
+              key={`flex-${i}`}
+              initial={{ opacity: 0, x: 60, skewX: 15 }}
+              animate={{ opacity: 1, x: 0, skewX: 0 }}
+              transition={{
+                delay: 0.35 + i * 0.08,
+                duration: 0.7,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              className="font-display text-[clamp(4rem,14vw,10rem)] leading-none tracking-tighter text-brand-accent"
+            >
+              {letter}
+            </motion.span>
+          ))}
         </div>
       </div>
+
+      {/* ── Tagline ── */}
+      <motion.p
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.9, duration: 0.6, ease: "easeOut" }}
+        className="relative z-10 font-indian text-[10px] tracking-[0.6em] uppercase text-gray-500 mt-3"
+      >
+        Elite Performance · Premium Gear
+      </motion.p>
+
+      {/* ── Animated accent line under logo ── */}
+      <motion.div
+        initial={{ scaleX: 0, opacity: 0 }}
+        animate={{ scaleX: 1, opacity: 1 }}
+        transition={{ delay: 0.7, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 mt-6 w-16 h-0.5 bg-brand-accent"
+        style={{ transformOrigin: "center" }}
+      />
+
+      {/* ── Progress + text ── */}
+      <div className="relative z-10 mt-8 flex flex-col items-center gap-3 w-56">
+        <div className="w-full h-px bg-white/10 rounded-full overflow-hidden relative">
+          <motion.div
+            initial={{ width: "0%" }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 3.2, ease: "easeInOut" }}
+            className="absolute top-0 left-0 h-full bg-brand-accent"
+            style={{
+              boxShadow: "0 0 12px rgba(225,29,72,0.8)",
+            }}
+          />
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={step}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2 }}
+            className="font-indian text-[10px] tracking-[0.4em] uppercase text-brand-accent/70"
+          >
+            {LOADING_STEPS[step]}
+          </motion.span>
+        </AnimatePresence>
+      </div>
+
+      {/* ── Pulsing corner indicators ── */}
+      <motion.div
+        animate={{ opacity: [0.3, 1, 0.3], scale: [1, 1.3, 1] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-[14%] right-[12%] w-2 h-2 rounded-full bg-brand-accent"
+      />
+      <motion.div
+        animate={{ opacity: [1, 0.3, 1], scale: [1.3, 1, 1.3] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-[14%] left-[12%] w-2 h-2 rounded-full bg-white/30"
+      />
     </motion.div>
   );
 };

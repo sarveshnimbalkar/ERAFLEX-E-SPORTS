@@ -279,8 +279,150 @@ html {
   pointer-events: none;
 }
 
-/* ─── Stats counter highlight ─── */
+/* \u2500\u2500\u2500 Stats counter highlight \u2500\u2500\u2500 */
 .stat-number {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
 }
+
+/* \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+   COLLECTION STORE PHOTO STYLE
+   Matches reference: dark diamond/lattice wallpaper
+   behind real jersey photography.
+   \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+   DESIGN DECISIONS:
+   \u2022 Geometric diamond lattice SVG \u2014 matches reference bg
+   \u2022 object-cover + center top \u2014 jersey fills frame naturally
+   \u2022 No artificial padding / white space
+   \u2022 Subtle dark overlay on hover only
+   \u2022 Smooth 105% zoom (natural, not aggressive)
+\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
+
+.pk-image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+
+  /* Diamond lattice wallpaper — matches the reference image background exactly */
+  background-color: #1a1a1a;
+  background-image:
+    /* Diagonal lines going NE */
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 14px,
+      rgba(255, 255, 255, 0.055) 14px,
+      rgba(255, 255, 255, 0.055) 15px
+    ),
+    /* Diagonal lines going NW — creates the diamond crosshatch */
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 14px,
+      rgba(255, 255, 255, 0.055) 14px,
+      rgba(255, 255, 255, 0.055) 15px
+    );
+}
+
+.pk-image-inner {
+  position: absolute;
+  inset: 0;
+  /* No padding \u2014 jersey fills the frame like real store photography */
+  padding: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.pk-image-inner img {
+  width: 100%;
+  height: 100%;
+  /* Cover fills the frame completely \u2014 authentic store photo look */
+  object-fit: cover;
+  /* Top-center: shows jersey number/badge area, not shoes */
+  object-position: center 15%;
+  /* Smooth, natural zoom on hover */
+  transition: transform 1.0s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.5s ease;
+  will-change: transform;
+}
+
+.pk-image-wrap:hover .pk-image-inner img {
+  transform: scale(1.05);
+  filter: brightness(1.05) contrast(1.02);
+}
+
+/* Corner bracket overlays \u2014 subtle framing like the reference */
+.pk-image-wrap::before,
+.pk-image-wrap::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.pk-image-wrap::before {
+  top: 10px; left: 10px;
+  border-top: 1.5px solid rgba(255,255,255,0.5);
+  border-left: 1.5px solid rgba(255,255,255,0.5);
+}
+.pk-image-wrap::after {
+  bottom: 10px; right: 10px;
+  border-bottom: 1.5px solid rgba(255,255,255,0.5);
+  border-right: 1.5px solid rgba(255,255,255,0.5);
+}
+.pk-image-wrap:hover::before,
+.pk-image-wrap:hover::after {
+  opacity: 1;
+}
+
+/* Radial vignette \u2014 adds realistic photo depth */
+.pk-image-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 110% 110% at 50% 50%,
+    transparent 40%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  transition: opacity 0.5s ease;
+  opacity: 0.7;
+}
+
+.pk-image-wrap:hover .pk-image-vignette {
+  opacity: 0.5;
+}
+
+/* Bottom gradient \u2014 always present (like real store photos), stronger on hover */
+.pk-image-gradient {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 50%;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.75) 0%,
+    rgba(0, 0, 0, 0.15) 60%,
+    transparent 100%
+  );
+  opacity: 0.6;
+  transition: opacity 0.4s ease;
+}
+
+.pk-image-wrap:hover .pk-image-gradient {
+  opacity: 0.9;
+}
+
+/* Release GPU layers post-animation */
+@media (prefers-reduced-motion: no-preference) {
+  .motion-done {
+    will-change: auto !important;
+  }
+}
+
+

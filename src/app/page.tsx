@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Zap, ArrowRight } from "lucide-react";
@@ -12,6 +12,7 @@ import { Hero } from "@/components/home/Hero";
 import { RecommendedProducts } from "@/components/shared/RecommendedProducts";
 import { Testimonials } from "@/components/home/Testimonials";
 import { PRODUCTS } from "@/lib/data/products";
+import { getImageByCategory } from "@/lib/imageUtils";
 import type { Product } from "@/types";
 
 const LoadingScreen = dynamic(
@@ -49,30 +50,20 @@ const stats = [
 ];
 
 export default function Home() {
+  // Always animate on entry — runs every page load
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const seenKey = "eraflex-home-loader-seen";
-
-    if (sessionStorage.getItem(seenKey) === "1") {
-      setIsLoading(false);
-      return;
-    }
-
-    sessionStorage.setItem(seenKey, "1");
-  }, []);
 
   return (
     <main className="relative min-h-screen bg-brand-dark">
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isLoading && <LoadingScreen key="loading" onComplete={() => setIsLoading(false)} />}
       </AnimatePresence>
 
       {!isLoading && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
           <Header />
           <Hero />
@@ -123,7 +114,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-l from-brand-dark to-transparent z-10" />
                 <div
                   className="w-full h-full bg-cover bg-center grayscale opacity-70 group-hover:scale-105 group-hover:opacity-90 transition-all duration-1000"
-                  style={{ backgroundImage: "url('https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=1000&auto=format&fit=crop')" }}
+                  style={{ backgroundImage: `url('${getImageByCategory("customizer")}')` }}
                 />
               </div>
 
@@ -161,9 +152,10 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="relative aspect-video rounded-sm overflow-hidden border border-white/10 group shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1508344928928-7165b67de128?w=1000&auto=format&fit=crop"
+                  src={getImageByCategory("ar-tryon")}
                   className="w-full h-full object-cover grayscale opacity-75 contrast-125 group-hover:scale-105 group-hover:opacity-90 transition-all duration-700"
-                  alt="AR Try-On"
+                  alt="AR Try-On technology"
+                  loading="lazy"
                 />
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-brand-dark/60 via-transparent to-transparent" />

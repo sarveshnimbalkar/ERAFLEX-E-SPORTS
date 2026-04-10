@@ -113,7 +113,7 @@ export const ProductCard = memo(({ product }: ProductCardProps) => {
         transformStyle: "preserve-3d",
         perspective: 1200,
       }}
-      className="group relative bg-brand-surface border border-white/5 overflow-hidden rounded-md z-10 hover:z-20 transition-shadow duration-500 shadow-2xl hover:shadow-[0_20px_60px_rgba(225,29,72,0.15)]"
+      className="group relative bg-brand-surface border border-white/5 overflow-hidden rounded-md z-10 hover:z-20 transition-shadow duration-500 shadow-2xl hover:shadow-[0_20px_60px_rgba(225,29,72,0.15)] flex flex-col"
     >
       {/* Interactive Glare overlay */}
       <motion.div 
@@ -154,27 +154,34 @@ export const ProductCard = memo(({ product }: ProductCardProps) => {
         </Link>
       </div>
 
-      {/* Image Container */}
-      <Link href={`/shop/${product.id}`} className="relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-[#1a1a1a] to-black block" style={{ transformStyle: "preserve-3d" }}>
-        
-        <motion.img
-          src={product.image}
-          alt={product.name}
-          loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-[1200ms] ease-[0.16,1,0.3,1] group-hover:scale-110 origin-bottom"
-          style={{ transform: "translateZ(20px)" }} // Image pops out
-        />
-        
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/40 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+      {/* ── Premium Image Container — Nike/Adidas catalog style ── */}
+      <Link
+        href={`/shop/${product.id}`}
+        className="pk-image-wrap block flex-shrink-0"
+        tabIndex={-1}
+      >
+        {/* Inner padded frame — jersey always centered with breathing room */}
+        <div className="pk-image-inner">
+          <img
+            src={product.image}
+            alt={product.name}
+            loading="lazy"
+            draggable={false}
+          />
+        </div>
+
+        {/* Radial edge vignette — depth effect */}
+        <div className="pk-image-vignette" />
+
+        {/* Bottom gradient — reveals on hover for the Add to Cart CTA */}
+        <div className="pk-image-gradient" />
 
         {/* Slide-up Add to Cart */}
-        <div className="absolute bottom-0 left-0 w-full p-6 translate-y-[120%] group-hover:translate-y-0 transition-transform duration-700 ease-[0.16,1,0.3,1] z-50 transform-gpu" style={{ transform: "translateZ(40px)" }}>
+        <div className="absolute bottom-0 left-0 w-full p-5 translate-y-[120%] group-hover:translate-y-0 transition-transform duration-700 ease-[0.16,1,0.3,1] z-50">
           <button
             onClick={handleAddToCart}
-            className="w-full bg-brand-accent text-white py-4 font-bold tracking-[0.2em] uppercase flex items-center justify-center gap-3 text-sm relative overflow-hidden transition-all duration-300 hover:bg-white hover:text-black rounded-sm shadow-[0_10px_30px_rgba(225,29,72,0.3)]"
+            className="w-full bg-brand-accent text-white py-3.5 font-bold tracking-[0.2em] uppercase flex items-center justify-center gap-3 text-xs relative overflow-hidden transition-all duration-300 hover:bg-white hover:text-black rounded-sm shadow-[0_10px_30px_rgba(225,29,72,0.4)]"
           >
-            {/* Ripples */}
             {ripples.map(({ id, x, y }) => (
               <span
                 key={id}
@@ -186,9 +193,9 @@ export const ProductCard = memo(({ product }: ProductCardProps) => {
               {addedToCart ? (
                 <motion.span
                   key="added"
-                  initial={{ opacity: 0, y: 15 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
+                  exit={{ opacity: 0, y: -12 }}
                   transition={{ ease: [0.16, 1, 0.3, 1] }}
                   className="flex items-center gap-2"
                 >
@@ -197,9 +204,9 @@ export const ProductCard = memo(({ product }: ProductCardProps) => {
               ) : (
                 <motion.span
                   key="add"
-                  initial={{ opacity: 0, y: 15 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
+                  exit={{ opacity: 0, y: -12 }}
                   transition={{ ease: [0.16, 1, 0.3, 1] }}
                   className="flex items-center gap-2"
                 >
