@@ -8,6 +8,9 @@ import { Check, Type, Hash, Palette, ShoppingBag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/useCartStore";
 import toast from "react-hot-toast";
+import { PRODUCTS } from "@/lib/data/products";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense, useEffect } from "react";
 
 const FONTS = [
   { name: "Athletic Block", class: "font-display" },
@@ -20,25 +23,37 @@ const COLORS = [
   { name: "Gold", value: "#FFD700", hex: "bg-brand-gold" },
 ];
 
-export default function CustomizePage() {
+function CustomizerContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const productId = searchParams.get('productId');
+  const initialProduct = PRODUCTS.find(p => p.id === productId) || PRODUCTS[0];
   const [jerseyName, setJerseyName] = useState("RONALDO");
   const [jerseyNumber, setJerseyNumber] = useState("7");
   const [selectedFont, setSelectedFont] = useState(FONTS[0]);
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
-  const [jerseyType, setJerseyType] = useState("home");
+  const [currentProduct, setCurrentProduct] = useState(initialProduct);
+
+  // Update current product if URL changes
+  useEffect(() => {
+    if (productId) {
+      const p = PRODUCTS.find(p => p.id === productId);
+      if (p) setCurrentProduct(p);
+    }
+  }, [productId]);
   
   const addItem = useCartStore((state) => state.addItem);
 
   const handleAddToCart = () => {
     addItem({
-      id: `custom-${Date.now()}`,
-      name: `Custom Elite Jersey`,
-      team: "Custom Edition",
-      price: 6999,
-      image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600",
-      category: "football",
-      sport: "football",
-      description: `Customized with Name: ${jerseyName}, Number: ${jerseyNumber}`,
+      id: `custom-${currentProduct.id}-${Date.now()}`,
+      name: `Custom ${currentProduct.name}`,
+      team: currentProduct.team,
+      price: currentProduct.price + 299, // Customization fee
+      image: currentProduct.image,
+      category: currentProduct.category,
+      sport: currentProduct.sport,
+      description: `Customized with Name: ${jerseyName}, Number: ${jerseyNumber}, Color: ${selectedColor.name}`,
       stock: 99,
       rating: 5,
     });
@@ -65,21 +80,30 @@ export default function CustomizePage() {
             {/* Left: Premium 2D Preview Area */}
             <div className="lg:col-span-7 sticky top-28">
               <div className="relative aspect-[4/5] md:aspect-square bg-[#e5e5e5] rounded-md overflow-hidden flex flex-col items-center justify-center p-10 group shadow-2xl">
+                
                 {/* 
-                  Base Image. In a fully robust system we'd use a transparent PNG of a jersey 
-                  back with proper studio lighting and wrinkles mapped. Here we simulate 
-                  it against a solid background for the prototype.
+                  REAL PRODUCT BASE
+                  Using the actual product image with a color tint overlay that preserves shadows
                 */}
-                <div 
-                  className="absolute inset-x-0 bottom-0 top-[20%] mx-auto w-[70%] bg-white rounded-t-[100px] shadow-2xl transition-colors duration-500"
-                  style={{ backgroundColor: jerseyType === 'home' ? '#f8f8f8' : '#1a1a1a' }}
-                >
-                  {/* Subtle lighting/wrinkle overlay simulation */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/5 to-transparent mix-blend-overlay rounded-t-[100px]" />
+                <div className="absolute inset-x-0 bottom-0 top-[10%] mx-auto w-[85%] transition-all duration-500 flex items-center justify-center">
+                  <img 
+                    src={currentProduct.image} 
+                    alt={currentProduct.name}
+                    className="w-full h-full object-contain relative z-10"
+                  />
+                  {/* Subtle color tint overlay based on selected color - uses mix-blend-color on top of image */}
+                  <div 
+                    className="absolute inset-0 z-20 pointer-events-none mix-blend-color opacity-30 transition-colors duration-500"
+                    style={{ backgroundColor: selectedColor.value }}
+                  />
+                  <div 
+                    className="absolute inset-0 z-20 pointer-events-none mix-blend-multiply opacity-20 transition-colors duration-500"
+                    style={{ backgroundColor: selectedColor.value }}
+                  />
                 </div>
 
                 {/* Dynamic Text Overlay Platform */}
-                <div className="relative z-10 flex flex-col items-center mt-[-10%] w-full">
+                <div className="relative z-30 flex flex-col items-center mt-[-15%] w-full">
                   <AnimatePresence mode="popLayout">
                     <motion.span 
                       key={jerseyName + selectedFont.name}
@@ -89,7 +113,7 @@ export default function CustomizePage() {
                       style={{ 
                         color: selectedColor.value,
                         transform: 'perspective(500px) rotateX(5deg)',
-                        WebkitTextStroke: selectedColor.value === '#111111' && jerseyType === 'away' ? '1px rgba(255,255,255,0.2)' : 'none'
+                        WebkitTextStroke: selectedColor.value === '#111111' ? '1px rgba(255,255,255,0.4)' : '1px rgba(0,0,0,0.2)'
                       }}
                     >
                       {jerseyName || "NAME"}
@@ -105,7 +129,7 @@ export default function CustomizePage() {
                       style={{ 
                         color: selectedColor.value,
                         transform: 'scaleY(1.1) perspective(500px) rotateX(2deg)',
-                        WebkitTextStroke: selectedColor.value === '#111111' && jerseyType === 'away' ? '1px rgba(255,255,255,0.2)' : 'none'
+                        WebkitTextStroke: selectedColor.value === '#111111' ? '1px rgba(255,255,255,0.4)' : '1px rgba(0,0,0,0.2)'
                       }}
                     >
                       {jerseyNumber || "00"}
@@ -127,6 +151,8 @@ export default function CustomizePage() {
                 <div className="space-y-4">
                   <label className="block text-[10px] font-indian tracking-widest text-gray-400 uppercase">Input Name</label>
                   <input 
+                    id="jerseyNameInput"
+                    name="jerseyNameInput"
                     type="text" 
                     maxLength={12}
                     value={jerseyName}
@@ -139,6 +165,8 @@ export default function CustomizePage() {
                 <div className="space-y-4">
                   <label className="block text-[10px] font-indian tracking-widest text-gray-400 uppercase">Input Number</label>
                   <input 
+                    id="jerseyNumberInput"
+                    name="jerseyNumberInput"
                     type="text" 
                     maxLength={2}
                     value={jerseyNumber}
@@ -156,20 +184,25 @@ export default function CustomizePage() {
                 </div>
 
                 <div className="space-y-4">
-                  <label className="block text-[10px] font-indian tracking-widest text-gray-400 uppercase">Base Kit</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button 
-                      onClick={() => setJerseyType('home')}
-                      className={`p-4 border font-display tracking-widest uppercase transition-all ${jerseyType === 'home' ? 'bg-white text-black border-white' : 'border-white/20 text-gray-400'}`}
+                  <label className="block text-[10px] font-indian tracking-widest text-gray-400 uppercase">Change Jersey Base</label>
+                  <div className="relative">
+                    <select
+                      id="jerseyBaseSelect"
+                      name="jerseyBaseSelect"
+                      value={currentProduct.id}
+                      onChange={(e) => {
+                        const newProduct = PRODUCTS.find(p => p.id === e.target.value);
+                        if (newProduct) {
+                          setCurrentProduct(newProduct);
+                          router.push(`/customize?productId=${newProduct.id}`, { scroll: false });
+                        }
+                      }}
+                      className="w-full bg-black/40 border border-white/20 p-4 font-display text-lg uppercase tracking-widest rounded-sm focus:border-brand-accent transition-colors outline-none appearance-none cursor-pointer text-white"
                     >
-                      Home (White)
-                    </button>
-                    <button 
-                      onClick={() => setJerseyType('away')}
-                      className={`p-4 border font-display tracking-widest uppercase transition-all ${jerseyType === 'away' ? 'bg-[#1a1a1a] text-white border-brand-accent' : 'border-white/20 text-gray-400'}`}
-                    >
-                      Away (Dark)
-                    </button>
+                      {PRODUCTS.map(p => (
+                        <option key={p.id} value={p.id} className="bg-brand-dark">{p.name}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -193,8 +226,8 @@ export default function CustomizePage() {
 
               <div className="pt-8 border-t border-white/10">
                 <div className="flex justify-between items-center mb-6">
-                  <p className="font-indian text-xs text-gray-500 uppercase tracking-widest">Total Build Configuration</p>
-                  <p className="font-display text-4xl text-brand-gold">₹6,999</p>
+                  <p className="font-indian text-xs text-gray-500 uppercase tracking-widest">Base Price + Custom Fee</p>
+                  <p className="font-display text-4xl text-brand-gold">₹{(currentProduct.price + 299).toLocaleString()}</p>
                 </div>
                 
                 <button 
@@ -213,5 +246,13 @@ export default function CustomizePage() {
         <Footer />
       </main>
     </ProtectedRoute>
+  );
+}
+
+export default function CustomizePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-brand-dark flex items-center justify-center text-brand-accent">Loading...</div>}>
+      <CustomizerContent />
+    </Suspense>
   );
 }

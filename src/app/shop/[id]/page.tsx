@@ -153,7 +153,7 @@ export default function ProductDetailPage() {
             </div>
 
             {/* CTA */}
-            <div className="pt-6">
+            <div className="pt-6 space-y-4">
               <button 
                 onClick={handleAddToCart}
                 disabled={isAdding}
@@ -163,6 +163,13 @@ export default function ProductDetailPage() {
                 {isAdding ? "ADDED TO BAG" : "ADD TO BAG"}
                 {!isAdding && <ShoppingBag className="w-5 h-5" />}
               </button>
+
+              <Link 
+                href={`/customize?productId=${product.id}`}
+                className="w-full py-4 font-black text-lg tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-3 rounded-md bg-transparent border-2 border-white/20 text-white hover:border-brand-accent hover:bg-brand-accent/10"
+              >
+                CUSTOMIZE THIS KIT (+₹299)
+              </Link>
             </div>
 
             {/* Shipping Psychologies */}

@@ -1,5 +1,5 @@
 import { streamText, type ModelMessage } from 'ai';
-import { openai } from '@ai-sdk/openai';
+import { createOpenAI } from '@ai-sdk/openai';
 import { getClientIp, rateLimit } from '@/lib/server/rateLimit';
 import { serverEnv } from '@/lib/server/env';
 
@@ -107,16 +107,23 @@ export async function POST(req: Request) {
         };
       });
 
+    const customOpenAI = createOpenAI({
+      apiKey: serverEnv.openAiApiKey,
+    });
+
     const result = streamText({
-      model: openai('gpt-4o-mini'),
+      model: customOpenAI('gpt-4o-mini'),
       system: SYSTEM_PROMPT,
       messages: coreMessages,
     });
     
-    return result.toUIMessageStreamResponse();
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error("Chat API Error:", error);
-    return new Response(JSON.stringify({ error: "Failed to process chat message" }), {
+    return new Response(JSON.stringify({ 
+      error: "Failed to process chat message", 
+      details: error instanceof Error ? error.message : String(error) 
+    }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });

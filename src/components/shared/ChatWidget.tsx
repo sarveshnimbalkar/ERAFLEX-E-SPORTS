@@ -25,7 +25,7 @@ export const ChatWidget = () => {
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input || !input.trim()) return;
     sendMessage({ role: "user", parts: [{ type: "text", text: input }], id: Date.now().toString() } as UIMessage);
     setInput("");
   };
@@ -71,7 +71,7 @@ export const ChatWidget = () => {
             {/* Messages Area */}
             <div 
               ref={scrollRef}
-              className="flex-1 overflow-y-auto p-6 space-y-6 no-scrollbar"
+              className="flex-1 overflow-y-auto p-6 space-y-6 no-scrollbar relative"
             >
               {messages.map((msg: any) => (
                 <div 
@@ -111,6 +111,8 @@ export const ChatWidget = () => {
             <form onSubmit={handleSend} className="p-6 bg-black/40 border-t border-white/5">
               <div className="relative group">
                 <input 
+                  id="chatWidgetInput"
+                  name="chatWidgetInput"
                   type="text"
                   placeholder="Ask ERAFLEX AI..."
                   value={input}
@@ -119,7 +121,7 @@ export const ChatWidget = () => {
                 />
                 <button 
                   type="submit"
-                  disabled={isLoading || !input.trim()}
+                  disabled={isLoading || !input || !input.trim()}
                   className="absolute right-4 top-1/2 -translate-y-1/2 hover:text-brand-accent transition-colors disabled:opacity-50"
                 >
                   <Send className="w-5 h-5" />
